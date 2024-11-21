@@ -23,7 +23,7 @@ const appBar = (pathname, socketConnected) => {
       <AppBarTitle
         className="rmd-typography--capitalize"
       >
-        <>Green - {pathname.replace("/", "").toUpperCase()}</>
+        <>Amarillo - {pathname.replace("/", "").toUpperCase()}</>
       </AppBarTitle>
 
       {socketConnected ? <CloudQueueSVGIcon style={{ marginRight: "20px" }} /> : <CloudOffSVGIcon style={{ marginRight: "20px" }} />}
