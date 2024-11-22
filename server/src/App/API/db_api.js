@@ -1,6 +1,5 @@
 
 module.exports = function (app, pool) {
-  const pg = require ('pg')
 
   const getVars = () => {
     return new Promise((resolve, reject) => {

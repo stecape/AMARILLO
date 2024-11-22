@@ -1,8 +1,10 @@
 import { useContext } from "react"
 import { Grid, GridCell } from '@react-md/utils'
+import { Button } from "@react-md/button"
 import { ctxData } from "../../Helpers/CtxProvider"
 import gridStyles from "../../styles/Grid.module.scss"
 import { TextContainer } from '@react-md/typography'
+import axios from 'axios'
 
 const basetypes = {
   Real: 'float',
@@ -120,6 +122,9 @@ export default function NoPage() {
               {`void *pointer[${structs.tagPointer.length}] = {\n\t${structs.tagPointer.join(`,\n\t`)}\n};`}
             </pre>
           </TextContainer>
+        </GridCell>
+        <GridCell colSpan={4} className={gridStyles.item}>
+          <Button onClick={() => axios.post('http://localhost:3001/api/mqtt/write', {id: 5, value: 123.4})}>Test Send</Button>
         </GridCell>
       </Grid>
     </>

@@ -1,5 +1,5 @@
-const vars_api = require('./db_api')
-
+const db_api = require('./db_api')
+const mqtt_api = require('./mqtt_api')
 module.exports = function (app, pool) {
   const pg = require ('pg')
 
@@ -8,5 +8,6 @@ module.exports = function (app, pool) {
     res.status(200).send('<p>Express.js BackEnd Server. Ciao!</p>')
   })
 
-  vars_api(app, pool)
+  db_api(app, pool)
+  mqtt_api(app, pool)
 }
