@@ -1,21 +1,20 @@
-const mqtt = require("mqtt")
-const mqttClient = mqtt.connect("mqtt://localhost:1883");
-
-mqttClient.on("connect", () => {
-  mqttClient.subscribe("feedback", (err) => {
-    if (!err) {
-      mqttClient.publish("feedback", "Hello mqtt");
-    }
-  });
-});
-
-const mqttWrite = (command) => {
-  mqttClient.publish("command", JSON.stringify(command))
-}
-
-
 module.exports = function (app, pool) {
-
+  const mqtt = require("mqtt")
+  const mqttClient = mqtt.connect("mqtt://localhost:1883");
+  
+  mqttClient.on("connect", () => {
+    mqttClient.subscribe("feedback", (err) => {
+      if (!err) {
+        mqttClient.publish("hello", "Hello mqtt");
+      }
+    });
+  });
+  
+  const mqttWrite = (command) => {
+    mqttClient.publish("command", JSON.stringify(command))
+  }
+  
+  
   
   /*
   Write a tag value to controller
@@ -33,6 +32,12 @@ module.exports = function (app, pool) {
     res.status(200)
   })
 
+  /*
+  {
+  "id":615,
+  "value": 23
+  }
+  */
   mqttClient.on("message", (topic, message) => {
     data = JSON.parse(message.toString())
     queryString=`UPDATE "Tag" SET value = '${JSON.stringify({value: data.value})}' WHERE id = ${data.id}`
@@ -41,7 +46,6 @@ module.exports = function (app, pool) {
           text: queryString,
           rowMode: 'array'
         })
-    //mqttClient.end();
   })
   
 }

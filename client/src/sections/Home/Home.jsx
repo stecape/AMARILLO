@@ -59,13 +59,14 @@ export default function NoPage() {
         <GridCell colSpan={6} className={gridStyles.item}>
           <TextContainer style={{marginLeft: '1em'}}>
             <pre>
+              {'\n#include "time.h"\n'}
               {'\n#define REAL 1'}
               {'\n#define INT 3'}
               {'\n#define BOOL 4'}
               {'\n#define STRING 5'}
               {'\n#define TIMESTAMP 6\n'}
               {
-                structs.types.map(t => `\ntypedef struct {${t.fields.map(f => { return ("\n\t" + f.type + " " + f.name) })}\n} ${t.name};\n`)
+                structs.types.map(t => `\ntypedef struct {${t.fields.map(f => { return ("\n\t" + f.type + " " + f.name) }).join(";")};\n} ${t.name};\n`)
               }
             </pre>
           </TextContainer>
