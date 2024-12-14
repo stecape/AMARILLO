@@ -3,7 +3,7 @@ module.exports = function (app, pool) {
   const mqttClient = mqtt.connect("mqtt://localhost:1883");
   
   mqttClient.on("connect", () => {
-    mqttClient.subscribe("feedback", (err) => {
+    mqttClient.subscribe("/feedback/Pot", (err) => {
       if (!err) {
         mqttClient.publish("hello", "Hello mqtt");
       }
@@ -11,7 +11,8 @@ module.exports = function (app, pool) {
   });
   
   const mqttWrite = (command) => {
-    mqttClient.publish("command", JSON.stringify(command))
+    console.log(command)
+    mqttClient.publish("/command/Pot", JSON.stringify(command))
   }
   
   
@@ -28,8 +29,9 @@ module.exports = function (app, pool) {
   Err:    400
   */
   app.post('/api/mqtt/write', (req, res) => {
-    mqttWrite([req.body.id, req.body.value])
-    res.status(200)
+    console.log({id:req.body.id, value:req.body.value})
+    mqttWrite({id:req.body.id, value:req.body.value})
+    res.json({result: {id:req.body.id, value:req.body.value}, message: "Message sent"})
   })
 
   /*

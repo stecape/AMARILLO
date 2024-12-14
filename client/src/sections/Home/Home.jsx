@@ -59,6 +59,8 @@ export default function NoPage() {
         <GridCell colSpan={6} className={gridStyles.item}>
           <TextContainer style={{marginLeft: '1em'}}>
             <pre>
+              {'#ifndef HMI_h\n'}
+              {'#define HMI_h\n'}
               {'\n#include "time.h"\n'}
               {'\n#define REAL 1'}
               {'\n#define INT 3'}
@@ -68,12 +70,23 @@ export default function NoPage() {
               {
                 structs.types.map(t => `\ntypedef struct {${t.fields.map(f => { return ("\n\t" + f.type + " " + f.name) }).join(";")};\n} ${t.name};\n`)
               }
+              {
+                structs.vars.map(v => {
+                  return (`\nextern ${v.type} ${v.name};`)
+                })
+              }
+              {'\n'}
+              {`\nextern int id[${structs.tagId.length}];`}
+              {`\nextern int type[${structs.tagType.length}];`}
+              {`\nextern void *pointer[${structs.tagPointer.length}];\n`}
+              {'\n#endif\n'}
             </pre>
           </TextContainer>
         </GridCell>
         <GridCell colSpan={6} className={gridStyles.item}>
           <TextContainer style={{marginLeft: '1em'}}>
             <pre>
+            {'#include "HMI.h"\n'}
             {
               structs.vars.map(v => {
                 //le tag da inizializzare sono quelle la cui var è un tipo base oppure quelle il cui field type un tipo base (tagIsBaseType(t, ctx))
@@ -84,48 +97,31 @@ export default function NoPage() {
 
                   switch(ctx.types.find(t => t.id === type).name){
                     case 'Real':
-                      return `${t.name} = 0;`
+                      return `${"." + t.name.split('.').slice(1).join('.')} = 0,`
                     case 'Int':
-                      return `${t.name} = 0;`
+                      return `${"." + t.name.split('.').slice(1).join('.')} = 0,`
                     case 'TimeStamp':
-                      return `${t.name} = 0;`
+                      return `${"." + t.name.split('.').slice(1).join('.')} = 0,`
                     case 'Bool':
-                      return `${t.name} = false;`
+                      return `${"." + t.name.split('.').slice(1).join('.')} = false,`
                     case 'String':
-                      return `${t.name} = '';`
+                      return `${"." + t.name.split('.').slice(1).join('.')} = '',`
                     default:
                       return ''
                   }
                 })
-                return (`\n${v.type} ${v.name};\n${inits.map(e => `${e} \n`).join("")}`)
+                return (`\n${v.type} ${v.name} = {\n${inits.map(e => `\t${e} \n`).join("")}};`)
               })
             }
+            {'\n'}
+            {`\nint id[${structs.tagId.length}] = {\n\t${structs.tagId.join(`,\n\t`)}\n};\n`}
+            {`\nint type[${structs.tagType.length}] = {\n\t${structs.tagType.join(`,\n\t`)}\n};\n`}
+            {`\nvoid *pointer[${structs.tagPointer.length}] = {\n\t${structs.tagPointer.join(`,\n\t`)}\n};\n`}
             </pre>
           </TextContainer>
         </GridCell>
         <GridCell colSpan={4} className={gridStyles.item}>
-          <TextContainer style={{marginLeft: '1em'}}>
-            <pre>
-              {`int id[${structs.tagId.length}] = {\n\t${structs.tagId.join(`,\n\t`)}\n};`}
-            </pre>
-          </TextContainer>
-        </GridCell>
-        <GridCell colSpan={4} className={gridStyles.item}>
-          <TextContainer style={{marginLeft: '1em'}}>
-            <pre>
-              {`int type[${structs.tagType.length}] = {\n\t${structs.tagType.join(`,\n\t`)}\n};`}
-            </pre>
-          </TextContainer>
-        </GridCell>
-        <GridCell colSpan={4} className={gridStyles.item}>
-          <TextContainer style={{marginLeft: '1em'}}>
-            <pre>
-              {`void *pointer[${structs.tagPointer.length}] = {\n\t${structs.tagPointer.join(`,\n\t`)}\n};`}
-            </pre>
-          </TextContainer>
-        </GridCell>
-        <GridCell colSpan={4} className={gridStyles.item}>
-          <Button onClick={() => axios.post('http://localhost:3001/api/mqtt/write', {id: 5, value: 123.4})}>Test Send</Button>
+          <Button onClick={() => axios.post('http://localhost:3001/api/mqtt/write', {id: 606, value: Math.floor((Math.random() * 1001))/10})}>Test Send</Button>
         </GridCell>
       </Grid>
     </>
