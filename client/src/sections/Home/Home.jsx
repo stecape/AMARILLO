@@ -50,7 +50,7 @@ export default function NoPage() {
       let type = t.type_field !== null ? IsBaseType(t.type_field, ctx.fields, ctx.types).type : IsBaseType(v.id, ctx.vars, ctx.types).type
       structs.tagType.push(ctx.types.find(t => t.id === type).name.toUpperCase())
       structs.tagId.push(t.id)
-      structs.tagPointer.push(`(void*)&${t.name}`)
+      structs.tagPointer.push(`(void*)&HMI.${t.name}`)
     })
   })
   return (
@@ -70,11 +70,14 @@ export default function NoPage() {
               {
                 structs.types.map(t => `\ntypedef struct {${t.fields.map(f => { return ("\n\t" + f.type + " " + f.name) }).join(";")};\n} ${t.name};\n`)
               }
+              {`\ntypedef struct {`}
               {
                 structs.vars.map(v => {
-                  return (`\nextern ${v.type} ${v.name};`)
+                  return (`\n\t${v.type} ${v.name};`)
                 })
               }
+              {`\n} _HMI;`}
+              {`\nextern _HMI HMI;`}
               {'\n'}
               {`\nextern int id[${structs.tagId.length}];`}
               {`\nextern int type[${structs.tagType.length}];`}
@@ -87,6 +90,7 @@ export default function NoPage() {
           <TextContainer style={{marginLeft: '1em'}}>
             <pre>
             {'#include "HMI.h"\n'}
+            {'\n_HMI hmi = {'}
             {
               structs.vars.map(v => {
                 //le tag da inizializzare sono quelle la cui var è un tipo base oppure quelle il cui field type un tipo base (tagIsBaseType(t, ctx))
@@ -110,9 +114,10 @@ export default function NoPage() {
                       return ''
                   }
                 })
-                return (`\n${v.type} ${v.name} = {\n${inits.map(e => `\t${e} \n`).join("")}};`)
+                return (`\n\t.${v.name} = {\n${inits.map(e => `\t\t${e}\n`).join("")}\t},`)
               })
             }
+            {'\n};'}
             {'\n'}
             {`\nint id[${structs.tagId.length}] = {\n\t${structs.tagId.join(`,\n\t`)}\n};\n`}
             {`\nint type[${structs.tagType.length}] = {\n\t${structs.tagType.join(`,\n\t`)}\n};\n`}
