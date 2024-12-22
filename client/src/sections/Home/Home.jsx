@@ -109,7 +109,7 @@ export default function Home() {
           <TextContainer style={{marginLeft: '1em'}}>
             <pre>
             {'#include "HMI.h"\n'}
-            {'\n_HMI hmi = {'}
+            {'\n_HMI HMI = {'}
             {
               structs.vars.map(v => {
                 //le tag da inizializzare sono quelle la cui var è un tipo base oppure quelle il cui field type un tipo base (tagIsBaseType(t, ctx))
