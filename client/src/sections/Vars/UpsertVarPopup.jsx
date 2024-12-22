@@ -17,7 +17,7 @@ import formStyles from '../../styles/Form.module.scss'
 function UpsertVarPopup (props) {
 
   const ctx = useContext(ctxData)
-  const [modalState, setModalState] = useState({ visible: false, varNameNotValid: true, name: '', modalType: props.modalType, type: 0, um: 0, logic_state: 0, comment: '' })
+  const [modalState, setModalState] = useState({ visible: false, varNameNotValid: true, device: 0, name: '', modalType: props.modalType, type: 0, um: 0, logic_state: 0, comment: '' })
   const [prevName, setPrevName] = useState("")
 
   //Input Validation
@@ -31,17 +31,17 @@ function UpsertVarPopup (props) {
   //Form Events
   const handleSubmit = (event) => {
     event.preventDefault()
-    props.upsertVar({name:modalState.name, type: modalState.type, um: modalState.um === 0 ? null : modalState.um, logic_state: modalState.logic_state === 0 ? null : modalState.logic_state, comment: modalState.comment === '' ? '' : modalState.comment })
-    setModalState((prevState) => ({ ...prevState, name: "", type: 0, um: 0, logic_state: 0, comment: ''}))
+    props.upsertVar({device:modalState.device, name:modalState.name, type: modalState.type, um: modalState.um === 0 ? null : modalState.um, logic_state: modalState.logic_state === 0 ? null : modalState.logic_state, comment: modalState.comment === '' ? '' : modalState.comment })
+    setModalState((prevState) => ({ ...prevState, device: 0, name: "", type: 0, um: 0, logic_state: 0, comment: ''}))
   }
   const handleReset = () => {
-    setModalState((prevState) => ({ ...prevState, name: "", type: 0, um: 0, logic_state: 0, comment: ''}))
+    setModalState((prevState) => ({ ...prevState, device: 0, name: "", type: 0, um: 0, logic_state: 0, comment: ''}))
     props.cancelCommand()
   }
 
   useEffect(() => {
-    setModalState((prevState) => ({ ...prevState, varNameNotValid: props.varNameNotValid, name: props.name, type: props.type, um: props.um, logic_state: props.logic_state, comment: props.comment, visible: props.visible}))
-  },[props.name, props.visible, props.type, props.um, props.logic_state, props.comment, props.varNameNotValid])
+    setModalState((prevState) => ({ ...prevState, varNameNotValid: props.varNameNotValid, device: props.device, name: props.name, type: props.type, um: props.um, logic_state: props.logic_state, comment: props.comment, visible: props.visible}))
+  },[props.device, props.name, props.visible, props.type, props.um, props.logic_state, props.comment, props.varNameNotValid])
   
   return (
     <Dialog
@@ -65,6 +65,19 @@ function UpsertVarPopup (props) {
               <div className={formStyles.container}>
                 <FormThemeProvider theme='outline'>
                   <Form className={formStyles.form} onSubmit={handleSubmit} onReset={handleReset}>
+                    <Select
+                      id='device'
+                      key='device'
+                      options={ctx.devices.map((item) => ({
+                        label: item.name,
+                        value: item.id
+                      }))}
+                      value={modalState.device.toString()}
+                      placeholder="Choose..."
+                      label="Device"
+                      className={formStyles.item}
+                      onChange={(value) => setModalState((prevState) => ({ ...prevState, device: Number(value)}))}
+                    />
                     <TextField
                       id='name'
                       key='name'

@@ -38,13 +38,19 @@ module.exports = function () {
       base_type bool NOT NULL,
       locked bool NOT NULL
     );
-    
+        
+    CREATE TABLE IF NOT EXISTS public."Device"
+    (
+      id SERIAL PRIMARY KEY,
+      name text COLLATE pg_catalog."default" NOT NULL
+    );
 
     CREATE TABLE IF NOT EXISTS public."Var"
     (
       id SERIAL PRIMARY KEY,
       type integer NOT NULL,
       name text COLLATE pg_catalog."default" NOT NULL,
+      device integer NOT NULL,
       um integer,
       logic_state integer,
       comment text COLLATE pg_catalog."default"
@@ -161,6 +167,12 @@ module.exports = function () {
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID,
+      DROP CONSTRAINT IF EXISTS var_device_id,
+      ADD CONSTRAINT var_device_id FOREIGN KEY (device)
+        REFERENCES public."Device" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
       DROP CONSTRAINT IF EXISTS var_logic_state_id,
       ADD CONSTRAINT var_logic_state_id FOREIGN KEY (logic_state)
         REFERENCES public."LogicState" (id) MATCH SIMPLE
@@ -178,6 +190,11 @@ module.exports = function () {
       DROP CONSTRAINT IF EXISTS unique_LogicState_name,
       ADD CONSTRAINT unique_LogicState_name UNIQUE (name);
 
+
+    ALTER TABLE IF EXISTS public."Device"
+      DROP CONSTRAINT IF EXISTS unique_Device_id_name,
+      ADD CONSTRAINT unique_Device_id_name UNIQUE (id, name);
+
   
     ALTER SEQUENCE IF EXISTS public."Type_id_seq"
       START 100;
@@ -194,6 +211,12 @@ module.exports = function () {
     ALTER SEQUENCE IF EXISTS public."LogicState_id_seq"
       START 100;
     --SELECT setval('public."LogicState_id_seq"', 99, true);
+
+    ALTER SEQUENCE IF EXISTS public."Device_id_seq"
+      START 100;
+    --SELECT setval('public."Device_id_seq"', 99, true);
+
+    INSERT INTO "Device"(id,name) VALUES (1, 'Device_1') ON CONFLICT (id, name) DO NOTHING;
 
     INSERT INTO "Type"(id,name,base_type, locked) VALUES (1, 'Real', true, true) ON CONFLICT (name) DO NOTHING;
     --INSERT INTO "Type"(id,name,base_type, locked) VALUES (2, 'Text', true, true) ON CONFLICT (name) DO NOTHING; !!!!!!SPARE!!!!!!
@@ -270,6 +293,11 @@ module.exports = function () {
     CREATE OR REPLACE TRIGGER \"TagUpdatingTrigger\" AFTER UPDATE ON \"Tag\" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER \"TagDeletingTrigger\" AFTER DELETE ON \"Tag\" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER \"TagTruncatingTrigger\" AFTER TRUNCATE ON \"Tag\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    -- triggers on Device
+    CREATE OR REPLACE TRIGGER \"DeviceInsertionTrigger\" AFTER INSERT ON \"Device\" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER \"DeviceUpdatingTrigger\" AFTER UPDATE ON \"Device\" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER \"DeviceDeletingTrigger\" AFTER DELETE ON \"Device\" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER \"DeviceTruncatingTrigger\" AFTER TRUNCATE ON \"Device\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Var
     CREATE OR REPLACE TRIGGER \"VarInsertionTrigger\" AFTER INSERT ON \"Var\" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER \"VarUpdatingTrigger\" AFTER UPDATE ON \"Var\" FOR EACH ROW EXECUTE PROCEDURE return_data();

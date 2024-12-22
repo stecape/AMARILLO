@@ -27,6 +27,7 @@ function VarsList () {
         <Table fullWidth className={tableStyles.table}>
           <TableHeader>
             <TableRow>
+              <TableCell hAlign="left" >Device</TableCell>
               <TableCell hAlign="left" grow >Name</TableCell>
               <TableCell hAlign="center">Type</TableCell>
               <TableCell hAlign="center">UM</TableCell>
@@ -37,6 +38,7 @@ function VarsList () {
           </TableHeader>
           <TableBody>
             {ctx.vars.map((item) => {
+                var deviceItem = ctx.devices.find(i => i.id === item.device)
                 var typeItem = ctx.types.find(i => i.id === item.type)
                 var umItem = ctx.ums.find(i => i.id === item.um)
                 var logic_stateItem = ctx.logicStates.find(i => i.id === item.logic_state)
@@ -44,6 +46,7 @@ function VarsList () {
                   <TableRow
                     key={item.id}
                   >
+                    <TableCell className={tableStyles.cell} hAlign="left">{deviceItem !== undefined ? deviceItem.name : item.device}</TableCell>
                     <TableCell className={tableStyles.cell} hAlign="left">{item.name}</TableCell>
                     <TableCell className={tableStyles.cell}>{typeItem !== undefined ? typeItem.name : item.type}</TableCell>
                     <TableCell className={tableStyles.cell}>{umItem !== undefined && item.um !== 0 && item.um !== null && umItem.name}</TableCell>
@@ -88,6 +91,7 @@ function VarsList () {
       />
       <UpsertVarPopup 
         visible={modifyVarPopup.visible}
+        device={0}
         name={modifyVarPopup.name}
         type={modifyVarPopup.type}
         um={modifyVarPopup.um}
@@ -108,6 +112,7 @@ function VarsList () {
       <UpsertVarPopup 
         visible={createVarPopup.visible}
         create
+        device={0}
         name=""
         type={0}
         um={0}

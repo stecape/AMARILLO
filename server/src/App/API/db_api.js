@@ -428,6 +428,7 @@ module.exports = function (app, pool) {
 
   app.post('/api/addVar', (req, res) => {
     var varId, typesList, fieldsList
+    var varDevice = req.body.device
     var varName = req.body.name
     var varType = req.body.type
     var varUm = req.body.um
@@ -450,7 +451,7 @@ module.exports = function (app, pool) {
       .then(data => {  
         fieldsList = data.rows 
         //Inserting the Var
-        queryString = `INSERT INTO "Var" (id, name, type, um, logic_state, comment) VALUES (DEFAULT, '${varName}', ${varType}, ${varUm}, ${varLogicState}, '${varComment}') RETURNING "id"`
+        queryString = `INSERT INTO "Var" (id, device, name, type, um, logic_state, comment) VALUES (DEFAULT, '${varDevice}', '${varName}', ${varType}, ${varUm}, ${varLogicState}, '${varComment}') RETURNING "id"`
         pool.query({
           text: queryString,
           rowMode: 'array'
@@ -491,6 +492,7 @@ module.exports = function (app, pool) {
 
   app.post('/api/modifyVar', (req, res) => {
     var varId, typesList, fieldsList
+    var varDevice = req.body.device
     var varName = req.body.name
     var varType = req.body.type
     var varUm = req.body.um
@@ -513,7 +515,7 @@ module.exports = function (app, pool) {
       .then(data => {  
         fieldsList = data.rows 
         //Inserting the Var
-        queryString=`UPDATE "Var" SET name = '${varName}', type = ${varType}, um = ${varUm}, logic_state = ${varLogicState}, comment = '${varComment}' WHERE id = ${req.body.id}`
+        queryString=`UPDATE "Var" SET device = '${varDevice}', name = '${varName}', type = ${varType}, um = ${varUm}, logic_state = ${varLogicState}, comment = '${varComment}' WHERE id = ${req.body.id}`
         pool.query({
           text: queryString,
           rowMode: 'array'
@@ -818,4 +820,66 @@ module.exports = function (app, pool) {
   })
 
 
+
+  /**
+   * Aggiungi un dispositivo
+   * @route POST /api/addDevice
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} req.body - Il corpo della richiesta.
+   * @param {string} req.body.name - Il nome del dispositivo da aggiungere.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - L'ID del dispositivo aggiunto e un messaggio di conferma.
+   */
+
+  /**
+   * Modifica un dispositivo
+   * @route POST /api/modifyDevice
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} req.body - Il corpo della richiesta.
+   * @param {number} req.body.id - L'ID del dispositivo da modificare.
+   * @param {string} req.body.name - Il nuovo nome del dispositivo.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - Un messaggio di conferma.
+   */
+
+  /**
+   * Ottieni tutti i dispositivi
+   * @route GET /api/getDevices
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - Un array di dispositivi e un messaggio di conferma.
+   */
+
+  // Aggiungi un dispositivo
+  app.post('/api/addDevice', (req, res) => {
+    const queryString = `INSERT INTO "Device" (id, name) VALUES (DEFAULT, '${req.body.name}') RETURNING id`;
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => { res.json({ result: data.rows[0], message: "Device inserted" }) })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
+
+  // Modifica un dispositivo
+  app.post('/api/modifyDevice', (req, res) => {
+    const queryString = `UPDATE "Device" SET name = '${req.body.name}' WHERE id = ${req.body.id}`;
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => { res.json({ result: data.rows[0], message: "Device updated" }) })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
+
+  // Ottieni tutti i dispositivi
+  app.get('/api/getDevices', (req, res) => {
+    const queryString = `SELECT * FROM "Device"`;
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => { res.json({ result: data.rows, message: "Devices retrieved" }) })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
 }

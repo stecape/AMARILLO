@@ -18,6 +18,7 @@ function TagsList () {
       <Table fullWidth className={tableStyles.table}>
         <TableHeader>
           <TableRow>
+            <TableCell hAlign="left">Device</TableCell>
             <TableCell hAlign="center">Id</TableCell>
             <TableCell hAlign="left" style={{ minWidth: '300px' }} grow >Name</TableCell>
             <TableCell hAlign="center">Type</TableCell>
@@ -30,6 +31,7 @@ function TagsList () {
         <TableBody>
           {ctx.vars.length>0 && ctx.types.length>0 && ctx.fields.length>0 && ctx.tags.map((item) => {
             //1 is a placeholder test value, to not have it undefined
+            var deviceItem = ctx.devices.find(i => i.id === ctx.vars.find(i => i.id === item.var).device)
             var typeItem =1
             var umItem =1
             var logic_stateItem =1
@@ -50,6 +52,7 @@ function TagsList () {
 
               return (
                 <TableRow key={item.id}>
+                  <TableCell className={tableStyles.cell} hAlign="left">{deviceItem !== undefined ? deviceItem.name : item.device}</TableCell>
                   <TableCell className={tableStyles.cell} hAlign="center">{item.id}</TableCell>
                   <TableCell className={tableStyles.cell} hAlign="left">{item.name}</TableCell>
                   <TableCell className={tableStyles.cell} hAlign="center">{typeItem !== undefined ? typeItem.name : item.type}</TableCell>

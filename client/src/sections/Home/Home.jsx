@@ -1,6 +1,7 @@
-import { useContext } from "react"
+import { useState, useContext } from "react"
 import { Grid, GridCell } from '@react-md/utils'
 import { Button } from "@react-md/button"
+import { DropdownMenu, MenuItem } from "@react-md/menu"
 import { ctxData } from "../../Helpers/CtxProvider"
 import gridStyles from "../../styles/Grid.module.scss"
 import { TextContainer } from '@react-md/typography'
@@ -21,8 +22,11 @@ const IsBaseType = (x, data, types)=> {
   return sentence
 }
 
-export default function NoPage() {
+export default function Home() {
   const ctx = useContext(ctxData)
+  const [selectedDevice, setSelectedDevice] = useState(null)
+  const devices = ctx.devices || []
+  
   let structs = { types: [], vars: [], tagType: [], tagId: [], tagPointer: [] }
 
   //Generazione dei tipi di dati
@@ -37,7 +41,7 @@ export default function NoPage() {
   })
 
   //Generazione delle istanze a partire dalla tabella delle Vars
-  structs.vars = ctx.vars.map(v => {
+  structs.vars = ctx.vars.filter(v => v.device === selectedDevice).map(v => {
     return { id: v.id, name: v.name, type: basetypes[ctx.types.find(t => t.id === v.type).name] !== undefined ? basetypes[ctx.types.find(t => t.id === v.type).name] : ctx.types.find(t => t.id === v.type).name }
   })
 
@@ -56,6 +60,21 @@ export default function NoPage() {
   return (
     <>
       <Grid>
+        <GridCell colSpan={12} className={gridStyles.item}>
+          <DropdownMenu
+            id="device-dropdown-menu"
+            buttonChildren="Select Device"
+            onClick={(event) => setSelectedDevice(event.currentTarget.textContent)}
+          >
+            {devices.map(device => (
+              <MenuItem key={device.id} onClick={() => setSelectedDevice(device.id)}>
+                {device.name}
+              </MenuItem>
+            ))}
+          </DropdownMenu>
+        </GridCell>
+        {selectedDevice && (
+          <>
         <GridCell colSpan={6} className={gridStyles.item}>
           <TextContainer style={{marginLeft: '1em'}}>
             <pre>
@@ -128,6 +147,8 @@ export default function NoPage() {
         <GridCell colSpan={4} className={gridStyles.item}>
           <Button onClick={() => axios.post('http://localhost:3001/api/mqtt/write', {id: 606, value: Math.floor((Math.random() * 1001))/10})}>Test Send</Button>
         </GridCell>
+          </>
+        )}
       </Grid>
     </>
   )
