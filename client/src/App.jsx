@@ -4,6 +4,7 @@ import Home from "./sections/Home/Home"
 import Types from "./sections/Types/Types"
 import Um from "./sections/Um/Um"
 import LogicState from "./sections/LogicState/LogicState"
+import Templates from "./sections/Templates/Templates"
 import Devices from "./sections/Devices/Devices"
 import Vars from "./sections/Vars/Vars"
 import Alarms from "./sections/Alarms/Alarms"
@@ -19,6 +20,7 @@ function App () {
         <Route path="types" element={<Types/>} />
         <Route path="um" element={<Um/>} />
         <Route path="logicState" element={<LogicState/>} />
+        <Route path="templates" element={<Templates/>} />
         <Route path="devices" element={<Devices/>} />
         <Route path="vars" element={<Vars/>} />
         <Route path="alarms" element={<Alarms/>} />
