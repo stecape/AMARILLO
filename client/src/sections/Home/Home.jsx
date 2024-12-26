@@ -145,7 +145,7 @@ export default function Home() {
           </TextContainer>
         </GridCell>
         <GridCell colSpan={4} className={gridStyles.item}>
-          <Button onClick={() => axios.post('http://localhost:3001/api/mqtt/write', {id: 606, value: Math.floor((Math.random() * 1001))/10})}>Test Send</Button>
+          <Button onClick={() => axios.post('http://localhost:3001/api/mqtt/write', {device:"Pot", id: 606, value: Math.floor((Math.random() * 1001))/10})}>Test Send</Button>
         </GridCell>
           </>
         )}

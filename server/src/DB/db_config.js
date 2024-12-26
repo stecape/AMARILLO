@@ -1,8 +1,6 @@
-module.exports = {
-  db_dialect: 'postgres',
-  db_port: 5432,
-  db_host: 'LOCALHOST',
-  db_name: 'green',
-  db_user: 'postgres',
-  db_password: 'postgrespw'
-}
+export const db_dialect = 'postgres';
+export const db_port = 5432;
+export const db_host = 'host.docker.internal';
+export const db_name = 'green';
+export const db_user = 'postgres';
+export const db_password = 'postgrespw';

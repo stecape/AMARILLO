@@ -1,0 +1,69 @@
+version: '3.9'
+
+x-project-name: &project-name amarillo
+
+services:
+  client:
+    image: node
+    container_name: client
+    volumes:
+      - .:/workspace
+      - /workspace/client/node_modules
+    working_dir: /workspace/client
+    command: /bin/bash -c "npm install && npm start"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - mosquitto
+      - pgadmin
+
+  server:
+    image: node
+    container_name: server
+    volumes:
+      - .:/workspace
+      - /workspace/server/node_modules
+    working_dir: /workspace/server
+    command: /bin/bash -c "npm install && npm run watch"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - mosquitto
+      - pgadmin
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespw
+      POSTGRES_DB: green
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_config:/mosquitto/config
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ste.cape@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "5555:80"
+
+volumes:
+  pgdata:
+  mosquitto_data:
+  mosquitto_config:

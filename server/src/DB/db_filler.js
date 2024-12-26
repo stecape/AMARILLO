@@ -1,9 +1,13 @@
-module.exports = function () {
+import pkg from 'pg'
+import { db_dialect, db_user, db_password, db_host, db_port, db_name } from './db_config.js'
+
+const connStr = `${db_dialect}://${db_user}:${db_password}@${db_host}:${db_port}/${db_name}`
+let pool
+
+export default function () {
   return new Promise((innerResolve, innerReject) => {
-    const pg = require ('pg')
-    const db_config = require('./db_config')
-    const connStr = db_config.db_dialect + '://' + db_config.db_user + ':' + db_config.db_password + '@' + db_config.db_host + ':' + db_config.db_port + '/' + db_config.db_name
-    var pool = new pg.Pool({connectionString: connStr})
+    const {Pool} = pkg
+    pool = new Pool({ connectionString: connStr })
     var queryString=`
     CREATE TABLE IF NOT EXISTS public."Field"
     (
@@ -216,8 +220,6 @@ module.exports = function () {
       START 100;
     --SELECT setval('public."Device_id_seq"', 99, true);
 
-    INSERT INTO "Device"(id,name) VALUES (1, 'Device_1') ON CONFLICT (id, name) DO NOTHING;
-
     INSERT INTO "Type"(id,name,base_type, locked) VALUES (1, 'Real', true, true) ON CONFLICT (name) DO NOTHING;
     --INSERT INTO "Type"(id,name,base_type, locked) VALUES (2, 'Text', true, true) ON CONFLICT (name) DO NOTHING; !!!!!!SPARE!!!!!!
     INSERT INTO "Type"(id,name,base_type, locked) VALUES (3, 'Int', true, true) ON CONFLICT (name) DO NOTHING;
@@ -289,40 +291,40 @@ module.exports = function () {
     $BODY$;
 
     -- triggers on Tag
-    CREATE OR REPLACE TRIGGER \"TagInsertionTrigger\" AFTER INSERT ON \"Tag\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"TagUpdatingTrigger\" AFTER UPDATE ON \"Tag\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"TagDeletingTrigger\" AFTER DELETE ON \"Tag\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"TagTruncatingTrigger\" AFTER TRUNCATE ON \"Tag\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TagInsertionTrigger AFTER INSERT ON "Tag" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TagUpdatingTrigger AFTER UPDATE ON "Tag" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TagDeletingTrigger AFTER DELETE ON "Tag" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TagTruncatingTrigger AFTER TRUNCATE ON "Tag" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Device
-    CREATE OR REPLACE TRIGGER \"DeviceInsertionTrigger\" AFTER INSERT ON \"Device\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"DeviceUpdatingTrigger\" AFTER UPDATE ON \"Device\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"DeviceDeletingTrigger\" AFTER DELETE ON \"Device\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"DeviceTruncatingTrigger\" AFTER TRUNCATE ON \"Device\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER DeviceInsertionTrigger AFTER INSERT ON "Device" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER DeviceUpdatingTrigger AFTER UPDATE ON "Device" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER DeviceDeletingTrigger AFTER DELETE ON "Device" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER DeviceTruncatingTrigger AFTER TRUNCATE ON "Device" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Var
-    CREATE OR REPLACE TRIGGER \"VarInsertionTrigger\" AFTER INSERT ON \"Var\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"VarUpdatingTrigger\" AFTER UPDATE ON \"Var\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"VarDeletingTrigger\" AFTER DELETE ON \"Var\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"VarTruncatingTrigger\" AFTER TRUNCATE ON \"Var\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER VarInsertionTrigger AFTER INSERT ON "Var" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER VarUpdatingTrigger AFTER UPDATE ON "Var" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER VarDeletingTrigger AFTER DELETE ON "Var" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER VarTruncatingTrigger AFTER TRUNCATE ON "Var" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Type
-    CREATE OR REPLACE TRIGGER \"TypeInsertionTrigger\" AFTER INSERT ON \"Type\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"TypeUpdatingTrigger\" AFTER UPDATE ON \"Type\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"TypeDeletingTrigger\" AFTER DELETE ON \"Type\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"TypeTruncatingTrigger\" AFTER TRUNCATE ON \"Type\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TypeInsertionTrigger AFTER INSERT ON "Type" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TypeUpdatingTrigger AFTER UPDATE ON "Type" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TypeDeletingTrigger AFTER DELETE ON "Type" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TypeTruncatingTrigger AFTER TRUNCATE ON "Type" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Field
-    CREATE OR REPLACE TRIGGER \"FieldInsertionTrigger\" AFTER INSERT ON \"Field\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"FieldUpdatingTrigger\" AFTER UPDATE ON \"Field\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"FieldDeletingTrigger\" AFTER DELETE ON \"Field\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"FieldTruncatingTrigger\" AFTER TRUNCATE ON \"Field\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER FieldInsertionTrigger AFTER INSERT ON "Field" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER FieldUpdatingTrigger AFTER UPDATE ON "Field" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER FieldDeletingTrigger AFTER DELETE ON "Field" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER FieldTruncatingTrigger AFTER TRUNCATE ON "Field" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Um
-    CREATE OR REPLACE TRIGGER \"UmInsertionTrigger\" AFTER INSERT ON \"um\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"UmUpdatingTrigger\" AFTER UPDATE ON \"um\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"UmDeletingTrigger\" AFTER DELETE ON \"um\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"UmTruncatingTrigger\" AFTER TRUNCATE ON \"um\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER UmInsertionTrigger AFTER INSERT ON "um" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER UmUpdatingTrigger AFTER UPDATE ON "um" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER UmDeletingTrigger AFTER DELETE ON "um" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER UmTruncatingTrigger AFTER TRUNCATE ON "um" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on LogicState
-    CREATE OR REPLACE TRIGGER \"LogicStateInsertionTrigger\" AFTER INSERT ON \"LogicState\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"LogicStateUpdatingTrigger\" AFTER UPDATE ON \"LogicState\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"LogicStateDeletingTrigger\" AFTER DELETE ON \"LogicState\" FOR EACH ROW EXECUTE PROCEDURE return_data();
-    CREATE OR REPLACE TRIGGER \"LogicStateTruncatingTrigger\" AFTER TRUNCATE ON \"LogicState\" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER LogicStateInsertionTrigger AFTER INSERT ON "LogicState" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER LogicStateUpdatingTrigger AFTER UPDATE ON "LogicState" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER LogicStateDeletingTrigger AFTER DELETE ON "LogicState" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER LogicStateTruncatingTrigger AFTER TRUNCATE ON "LogicState" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
   `
     pool.query({
       text: queryString

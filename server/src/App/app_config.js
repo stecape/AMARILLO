@@ -1,3 +1,1 @@
-module.exports = {
-  ws_port: 3001
-}
+export const ws_port = 3001;

@@ -1,5 +1,6 @@
+import globalEventEmitter from '../../Helpers/eventHandler.js';
 
-module.exports = function (app, pool) {
+export default function (app, pool) {
 
   const getVars = () => {
     return new Promise((resolve, reject) => {
@@ -857,7 +858,10 @@ module.exports = function (app, pool) {
       text: queryString,
       rowMode: 'array'
     })
-    .then(data => { res.json({ result: data.rows[0], message: "Device inserted" }) })
+    .then(data => {
+      globalEventEmitter.emit('deviceAdded')
+      res.json({ result: data.rows[0], message: "Device inserted" })
+    })
     .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
   });
 
@@ -868,7 +872,10 @@ module.exports = function (app, pool) {
       text: queryString,
       rowMode: 'array'
     })
-    .then(data => { res.json({ result: data.rows[0], message: "Device updated" }) })
+    .then(data => {
+      globalEventEmitter.emit('deviceUpdated')
+      res.json({ result: data.rows[0], message: "Device updated" })
+    })
     .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
   });
 
@@ -882,4 +889,19 @@ module.exports = function (app, pool) {
     .then(data => { res.json({ result: data.rows, message: "Devices retrieved" }) })
     .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
   });
+  
+  // Elimina un dispositivo
+  app.post('/api/removeDevice', (req, res) => {
+    var queryString=`DELETE FROM "Device" WHERE id = ${req.body.id};`
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => {
+      globalEventEmitter.emit('deviceDeleted')
+      res.json({ result: data.rows[0], message: "Device deleted" })
+    })
+    .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
+  })
+
 }

@@ -1,7 +1,7 @@
-const db_api = require('./db_api')
-const mqtt_api = require('./mqtt_api')
-module.exports = function (app, pool) {
-  const pg = require ('pg')
+import db_api from './db_api.js'
+import mqtt_api from './mqtt_api.js'
+export default function (app, pool) {
+//  const pg = require ('pg')
 
   app.get('/', (req, res) => {
     console.log('express connection')

@@ -1,6 +1,6 @@
 /////////////////////Event Listener Stuff///////////////////////////////
 
-module.exports = function (connection, pool) {
+export default function (connection, pool) {
   return new Promise((innerResolve, innerReject) => {  
     innerResolve(pool)
 

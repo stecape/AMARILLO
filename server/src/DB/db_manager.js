@@ -1,15 +1,16 @@
-const pg = require('pg')
-const db_config = require('./db_config')
-const db_filler = require('./db_filler')
-const db_listener = require('./db_listener')
-const app_api = require('../App/API/api')
-const app_ws = require('../App/app_ws')
+import pkg from 'pg'
+import { db_dialect, db_user, db_password, db_host, db_port, db_name } from './db_config.js'
+import db_filler from './db_filler.js'
+import db_listener from './db_listener.js'
+import app_api from '../App/API/api.js'
+import app_ws, { close } from '../App/app_ws.js'
 
-const connStr = `${db_config.db_dialect}://${db_config.db_user}:${db_config.db_password}@${db_config.db_host}:${db_config.db_port}/${db_config.db_name}`
+const connStr = `${db_dialect}://${db_user}:${db_password}@${db_host}:${db_port}/${db_name}`
 let pool
 
 function createPool() {
-  pool = new pg.Pool({ connectionString: connStr })
+  const {Pool} = pkg
+  pool = new Pool({ connectionString: connStr })
   pool.on('error', handlePoolError)
 }
 
@@ -44,7 +45,7 @@ function initialize() {
   })
 }
 
-function startApp() {
+export function startApp() {
   createPool()
   initialize()
     .then((pool) => {
@@ -56,7 +57,7 @@ function startApp() {
         .catch((err) => {
           console.error("Error setting up listeners", err)
           // Close WebSocket server before retrying
-          app_ws.close()
+          close()
           // Retry initialization
           setTimeout(startApp, 5000) // Retry after 5 seconds
         })
@@ -64,7 +65,7 @@ function startApp() {
     .catch((err) => {
       console.error("startApp: Initialization error")
       // Close WebSocket server before retrying
-      app_ws.close()
+      close()
       // Retry initialization
       setTimeout(startApp, 5000) // Retry after 5 seconds
     })
@@ -75,15 +76,15 @@ function startApp() {
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception: ', err) 
   // Close WebSocket server before retrying
-  app_ws.close()
+  close()
   setTimeout(startApp, 5000) // Retry after 5 seconds
 })
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason)
   // Close WebSocket server before retrying
-  app_ws.close()
+  close()
   setTimeout(startApp, 5000) // Retry after 5 seconds
 })
 
-module.exports = { startApp }
+export default { startApp }

@@ -1,3 +1,3 @@
-const db_manager = require('./src/DB/db_manager')
+import { startApp } from './src/DB/db_manager.js'
 
-db_manager.startApp()
+startApp()

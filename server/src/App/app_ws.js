@@ -1,19 +1,19 @@
-const app_config = require('./app_config')
-const cors = require('cors')
-const express = require('express')
-const http = require('http')
-const { Server } = require("socket.io")
+import { ws_port } from './app_config.js'
+import cors from 'cors'
+import express, { json } from 'express'
+import { createServer } from 'http'
+import { Server } from "socket.io"
 
 let server
 
-module.exports = function () {
+export default function () {
 
 
   //Express App creation
   const app = express()
   app.use(cors())
-  app.use(express.json())
-  server = http.createServer(app)
+  app.use(json())
+  server = createServer(app)
 
   //socket.io WebSocket creation and running on the http server
   const io = new Server(server, { cors: { origin: '*' } })
@@ -24,11 +24,11 @@ module.exports = function () {
   })
   
   //Start listening for http req
-  server.listen(app_config.ws_port, () => console.log('listening on http://localhost:' + app_config.ws_port + '/'))
+  server.listen(ws_port, () => console.log('listening on http://localhost:' + ws_port + '/'))
   return {connection: connection, expressApp: app}
 }
 
-module.exports.close = function () {
+export function close () {
   if (server) {
     server.close(() => {
       console.log('WebSocket server closed')
