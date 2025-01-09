@@ -74,8 +74,8 @@ export default function (app, pool) {
   }
   */
   mqttClient.on("message", (topic, message) => {
-    data = JSON.parse(message.toString())
-    queryString=`UPDATE "Tag" SET value = '${JSON.stringify({value: data.value})}' WHERE id = ${data.id}`
+    const data = JSON.parse(message.toString())
+    const queryString=`UPDATE "Tag" SET value = '${JSON.stringify({value: data.value})}' WHERE id = ${data.id}`
     console.log(queryString)
         pool.query({
           text: queryString,
