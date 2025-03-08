@@ -31,6 +31,7 @@ const navItems = {
   "/vars": createRoute("/vars", "Vars", <AllInclusiveSVGIcon />),
   "/alarms": createRoute("/alarms", "Alarms", <ErrorSVGIcon />),
   "/tags": createRoute("/tags", "Tags", <SettingsInputComponentSVGIcon />),
+  "/controls": createRoute("/controls", "Controls", <SettingsInputComponentSVGIcon />),
 };
 
 export default navItems;

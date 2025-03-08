@@ -9,6 +9,7 @@ import Devices from "./sections/Devices/Devices"
 import Vars from "./sections/Vars/Vars"
 import Alarms from "./sections/Alarms/Alarms"
 import Tags from "./sections/Tags/Tags"
+import Controls from "./sections/Controls/Controls"
 import NoPage from "./sections/NoPage/NoPage"
 
 function App () {
@@ -25,6 +26,7 @@ function App () {
         <Route path="vars" element={<Vars/>} />
         <Route path="alarms" element={<Alarms/>} />
         <Route path="tags" element={<Tags/>} />
+        <Route path="controls" element={<Controls/>} />
         <Route path="*" element={<NoPage />} />
       </Routes>
     </NestedDialogContextProvider>
