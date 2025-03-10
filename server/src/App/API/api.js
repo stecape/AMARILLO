@@ -1,5 +1,6 @@
 import db_api from './db_api.js'
 import mqtt_api from './mqtt_api.js'
+import controls_api from './controls_api.js'
 export default function (app, pool) {
 //  const pg = require ('pg')
 
@@ -10,4 +11,5 @@ export default function (app, pool) {
 
   db_api(app, pool)
   mqtt_api(app, pool)
+  controls_api(app, pool)
 }

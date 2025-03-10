@@ -18,50 +18,58 @@ export const CtxProvider = ({ children }) => {
   const [socketStatus, setSocketStatus] = useState({connected: false})
   const [init, setInit] = useState(false)
   const [devices, setDevices] = useState([]);
+  const [controls, setControls] = useState([]); //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type (solo il primo livello?)
 
   useEffect(() => {
 
-    const on_connect = () => {
-      setSocketStatus({connected: true})
-      axios.post('http://localhost:3001/api/getAll', {table: "Type", fields:["name", "id", "base_type", "locked"]})
-        .then(response => {
-          setTypes(response.data.result.map((val) => ({name:val[0], id:val[1], base_type:val[2], locked:val[3]})))
-          addMessage({children: response.data.message})
-          axios.post('http://localhost:3001/api/getAll', {table: "Field", fields:['id', 'name', 'type', 'parent_type', 'um', 'logic_state', 'comment']})
-            .then(response => {
-              setFields(response.data.result.map((val) => ({id:val[0], name:val[1], type:val[2], parent_type:val[3], um:val[4], logic_state:val[5], comment:val[6]})))
-              addMessage({children: response.data.message})
-              axios.post('http://localhost:3001/api/getAll', {table: "um", fields:['id', 'name', 'metric', 'imperial', 'gain', '"offset"']})
-                .then(response => {
-                  setUms(response.data.result.map((val) => ({id:val[0], name:val[1], metric:val[2], imperial:val[3], gain:val[4], offset:val[5]})))
-                  addMessage({children: response.data.message})
-                  axios.post('http://localhost:3001/api/getAll', {table: "LogicState", fields:['id', 'name', 'value']})
-                    .then(response => {
-                      setLogicStates(response.data.result.map((val) => ({id:val[0], name:val[1], value:val[2]})))
-                      addMessage({children: response.data.message})
-                      axios.post('http://localhost:3001/api/getAll', {table: "Var", fields:['id', 'device', 'name', 'type', 'um', 'logic_state', 'comment']})
-                        .then(response => {
-                          setVars(response.data.result.map((val) => ({id:val[0], device:val[1], name:val[2], type:val[3], um:val[4], logic_state:val[5], comment:val[6]})))
-                          addMessage({children: response.data.message})
-                          axios.post('http://localhost:3001/api/getAll', {table: "Tag", fields:['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value']})
-                            .then(response => {
-                              setTags(response.data.result.map((val) => ({id:val[0], name:val[1], var:val[2], parent_tag:val[3], type_field:val[4], um:val[5], logic_state:val[6], comment:val[7], value:val[8]})))
-                              addMessage({children: response.data.message})
-                              axios.post('http://localhost:3001/api/getAll', {table: "Device", fields:['id', 'name']})
-                                .then(response => {
-                                  console.log(response.data.result)
-                                  setDevices(response.data.result.map((val) => ({id:val[0], name:val[1]})))
-                                  addMessage({children: response.data.message})
-                                })
-                            })
-                        })
-                    })
-                })
-            })
-        })
-        .catch(error => console.log(error))
-      setInit(() => (true))
-    }
+    const on_connect = async () => {
+      try {
+        setSocketStatus({ connected: true });
+    
+        const requests = [
+          axios.post('http://localhost:3001/api/getAll', { table: "Type", fields: ["name", "id", "base_type", "locked"] }),
+          axios.post('http://localhost:3001/api/getAll', { table: "Field", fields: ['id', 'name', 'type', 'parent_type', 'um', 'logic_state', 'comment'] }),
+          axios.post('http://localhost:3001/api/getAll', { table: "um", fields: ['id', 'name', 'metric', 'imperial', 'gain', '"offset"'] }),
+          axios.post('http://localhost:3001/api/getAll', { table: "LogicState", fields: ['id', 'name', 'value'] }),
+          axios.post('http://localhost:3001/api/getAll', { table: "Var", fields: ['id', 'device', 'name', 'type', 'um', 'logic_state', 'comment'] }),
+          axios.post('http://localhost:3001/api/getAll', { table: "Tag", fields: ['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
+          axios.post('http://localhost:3001/api/getAll', { table: "Device", fields: ['id', 'name'] }),
+          axios.post('http://localhost:3001/api/getAllControls')
+        ];
+    
+        const responses = await Promise.all(requests);
+    
+        setTypes(responses[0].data.result.map((val) => ({ name: val[0], id: val[1], base_type: val[2], locked: val[3] })));
+        addMessage({ children: responses[0].data.message });
+    
+        setFields(responses[1].data.result.map((val) => ({ id: val[0], name: val[1], type: val[2], parent_type: val[3], um: val[4], logic_state: val[5], comment: val[6] })));
+        addMessage({ children: responses[1].data.message });
+    
+        setUms(responses[2].data.result.map((val) => ({ id: val[0], name: val[1], metric: val[2], imperial: val[3], gain: val[4], offset: val[5] })));
+        addMessage({ children: responses[2].data.message });
+    
+        setLogicStates(responses[3].data.result.map((val) => ({ id: val[0], name: val[1], value: val[2] })));
+        addMessage({ children: responses[3].data.message });
+    
+        setVars(responses[4].data.result.map((val) => ({ id: val[0], device: val[1], name: val[2], type: val[3], um: val[4], logic_state: val[5], comment: val[6] })));
+        addMessage({ children: responses[4].data.message });
+    
+        setTags(responses[5].data.result.map((val) => ({ id: val[0], name: val[1], var: val[2], parent_tag: val[3], type_field: val[4], um: val[5], logic_state: val[6], comment: val[7], value: val[8] })));
+        addMessage({ children: responses[5].data.message });
+    
+        setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1] })));
+        addMessage({ children: responses[6].data.message });
+    
+        console.log(responses[7].data);
+        setControls(responses[7].data.result);
+        addMessage({ children: responses[7].data.message });
+    
+      } catch (error) {
+        console.log(error);
+      }
+    
+      setInit(true);
+    };
 
     const on_error = (...args) => {
       console.log("socket error:", args[0])
@@ -73,8 +81,10 @@ export const CtxProvider = ({ children }) => {
       setSocketStatus({connected: false})
     }
 
-    const on_update = (...args) => {
+    const on_update = async (...args) => {
       const value = args[0]
+
+      
 
       switch(value.table){
         //Type
@@ -248,6 +258,15 @@ export const CtxProvider = ({ children }) => {
         default:
           break
       }
+
+      // Fetch updated controls
+      try {
+        const response = await axios.post('http://localhost:3001/api/getAllControls');
+        setControls(response.data.result);
+        addMessage({ children: response.data.message });
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     const on_close = (...args) => {
@@ -283,11 +302,11 @@ export const CtxProvider = ({ children }) => {
       socket.off("update", on_update)
       socket.off('close', on_close)
     }
-  }, [addMessage, init, socketStatus, logicStates, socket, types, fields, ums, vars, tags, devices])
+  }, [addMessage, init, socketStatus, logicStates, socket, types, fields, ums, vars, tags, devices, controls])
 
   const value = useMemo(
-    () => ({ socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices }),
-    [socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices]
+    () => ({ socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls }),
+    [socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls]
   );
 
   return (

@@ -18,7 +18,7 @@ import tableStyles from '../../styles/Table.module.scss'
 function VarsList () {
   const ctx = useContext(ctxData)
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
-  const [modifyVarPopup, setModifyVarPopup] = useState({ visible: false, id: 0, type: 0, um: 0, logic_state: 0, comment: '', name: '' })
+  const [modifyVarPopup, setModifyVarPopup] = useState({ visible: false, id: 0, type: 0, um: 0, logic_state: 0, comment: '', name: '', device: '' })
   const [createVarPopup, setCreateVarPopup] = useState({ visible: false })
 
   return(
@@ -64,7 +64,7 @@ function VarsList () {
                       <Button
                         buttonType="icon"
                         aria-label="Edit"
-                        onClick={()=> setModifyVarPopup({visible: true, id: item.id, type: item.type, um: item.um, logic_state: item.logic_state, comment: item.comment, name: item.name})}
+                        onClick={()=> setModifyVarPopup({visible: true, id: item.id, type: item.type, um: item.um, logic_state: item.logic_state, comment: item.comment, name: item.name, device: item.device})}
                       >
                         <EditSVGIcon />
                       </Button>
@@ -91,7 +91,7 @@ function VarsList () {
       />
       <UpsertVarPopup 
         visible={modifyVarPopup.visible}
-        device={0}
+        device={modifyVarPopup.device}
         name={modifyVarPopup.name}
         type={modifyVarPopup.type}
         um={modifyVarPopup.um}
