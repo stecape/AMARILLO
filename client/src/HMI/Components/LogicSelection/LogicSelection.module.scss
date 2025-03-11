@@ -1,0 +1,18 @@
+.logicSelection {
+  padding: 16px;
+}
+
+.title {
+  margin-bottom: 16px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.button {
+  flex: 1;
+  min-width: 100px;
+}

@@ -8,11 +8,13 @@ function Controls() {
   const ctx = useContext(ctxData)
   return (
     <>
-      <Grid>
-        <GridCell colSpan={6} className={gridStyles.item}>
-          <LogicSelection ctrl={ctx.Controls.Light} />
-        </GridCell>
-      </Grid>
+      {ctx.init && (
+        <Grid>
+          <GridCell colSpan={4} className={gridStyles.item}>
+            <LogicSelection ctrl={ctx.controls.Pot.Light} />
+          </GridCell>
+        </Grid>
+      )}
     </>
   )
 }

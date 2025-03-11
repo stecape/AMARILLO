@@ -120,7 +120,7 @@ The object is structured as follows:
         }
     }
 }
-    
+
 */
 
 import globalEventEmitter from '../../Helpers/eventHandler.js';
@@ -182,6 +182,7 @@ export default function (app, pool) {
 
         const deviceResult = tags.reduce((list, tag) => {
           const obj = {
+            device: deviceId,
             id: tag[0],
             name: tag[1],
             um: tag[5],

@@ -18,8 +18,8 @@ export const CtxProvider = ({ children }) => {
   const [socketStatus, setSocketStatus] = useState({connected: false})
   const [init, setInit] = useState(false)
   const [devices, setDevices] = useState([]);
-  const [controls, setControls] = useState([]); //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type (solo il primo livello?)
-
+  const [controls, setControls] = useState([]); //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type
+  
   useEffect(() => {
 
     const on_connect = async () => {
@@ -60,7 +60,6 @@ export const CtxProvider = ({ children }) => {
         setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1] })));
         addMessage({ children: responses[6].data.message });
     
-        console.log(responses[7].data);
         setControls(responses[7].data.result);
         addMessage({ children: responses[7].data.message });
     
@@ -305,8 +304,8 @@ export const CtxProvider = ({ children }) => {
   }, [addMessage, init, socketStatus, logicStates, socket, types, fields, ums, vars, tags, devices, controls])
 
   const value = useMemo(
-    () => ({ socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls }),
-    [socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls]
+    () => ({ init, setInit, socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls }),
+    [init, setInit, socketStatus, setSocketStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls]
   );
 
   return (
