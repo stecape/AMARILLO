@@ -18,6 +18,8 @@ import { useLocation, Link } from "react-router-dom"
 import { ctxData } from "./Helpers/CtxProvider"
 import navItems from "./navItems"
 
+import './styles/Layout.scss'
+
 import App from "./App"
 const appBar = (pathname, backendConnected, dbConnected) => {
   return (
@@ -28,8 +30,8 @@ const appBar = (pathname, backendConnected, dbConnected) => {
         <>Amarillo - {pathname.replace("/", "").toUpperCase()}</>
       </AppBarTitle>
 
-      {dbConnected ? <StayPrimaryPortraitSVGIcon style={{ marginRight: "20px" }} /> : <PhonelinkEraseSVGIcon style={{ marginRight: "20px" }} />}
-      {backendConnected ? <CloudQueueSVGIcon style={{ marginRight: "20px" }} /> : <CloudOffSVGIcon style={{ marginRight: "20px" }} />}
+      {dbConnected ? <StayPrimaryPortraitSVGIcon className="icon-black" /> : <PhonelinkEraseSVGIcon className="icon-black" />}
+      {backendConnected ? <CloudQueueSVGIcon className="icon-black" /> : <CloudOffSVGIcon className="icon-black" />}
     </LayoutAppBar>
   )
 }
