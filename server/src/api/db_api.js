@@ -1,4 +1,4 @@
-import globalEventEmitter from '../../Helpers/eventHandler.js';
+import globalEventEmitter from '../Helpers/globalEventEmitter.js';
 
 export default function (app, pool) {
 
@@ -853,7 +853,7 @@ export default function (app, pool) {
 
   // Aggiungi un dispositivo
   app.post('/api/addDevice', (req, res) => {
-    const queryString = `INSERT INTO "Device" (id, name) VALUES (DEFAULT, '${req.body.name}') RETURNING id`;
+    const queryString = `INSERT INTO "Device" (id, name, status) VALUES (DEFAULT, '${req.body.name}', 0) RETURNING id`;
     pool.query({
       text: queryString,
       rowMode: 'array'

@@ -46,7 +46,8 @@ export default function () {
     CREATE TABLE IF NOT EXISTS public."Device"
     (
       id SERIAL PRIMARY KEY,
-      name text COLLATE pg_catalog."default" NOT NULL
+      name text COLLATE pg_catalog."default" NOT NULL,
+      status integer NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS public."Var"

@@ -1,4 +1,4 @@
-import globalEventEmitter from '../../Helpers/eventHandler.js'
+import globalEventEmitter from '../Helpers/globalEventEmitter.js'
 import mqtt from 'mqtt'
 
 export default function (app, pool) {
@@ -31,7 +31,7 @@ export default function (app, pool) {
   }
 
   // Funzione per annullare tutte le subscription
-  const unsubscribeFromAllDevices = () => {
+  const unsubscribeFromAllDevices = async () => {
     mqttClient.unsubscribe(`/feedback/#`, (err) => {
       if (!err) {
         console.log(`Unsubscribed from /feedback/#`)

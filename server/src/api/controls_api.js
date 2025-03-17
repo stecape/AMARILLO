@@ -123,7 +123,7 @@ The object is structured as follows:
 
 */
 
-import globalEventEmitter from '../../Helpers/eventHandler.js';
+import globalEventEmitter from '../Helpers/globalEventEmitter.js';
 
 export default function (app, pool) {
 

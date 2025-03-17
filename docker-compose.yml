@@ -3,35 +3,35 @@ version: '3.9'
 x-project-name: &project-name amarillo
 
 services:
-  client:
-    image: node
-    container_name: client
-    volumes:
-      - .:/workspace
-      - /workspace/client/node_modules
-    working_dir: /workspace/client
-    command: /bin/bash -c "npm install && npm start"
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-      - mosquitto
-      - pgadmin
+  # client:
+  #   image: node
+  #   container_name: client
+  #   volumes:
+  #     - .:/workspace
+  #     - /workspace/client/node_modules
+  #   working_dir: /workspace/client
+  #   command: /bin/bash -c "npm install && npm start"
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgres
+  #     - mosquitto
+  #     - pgadmin
 
-  server:
-    image: node
-    container_name: server
-    volumes:
-      - .:/workspace
-      - /workspace/server/node_modules
-    working_dir: /workspace/server
-    command: /bin/bash -c "npm install && npm run watch"
-    ports:
-      - "3001:3001"
-    depends_on:
-      - postgres
-      - mosquitto
-      - pgadmin
+  # server:
+  #   image: node
+  #   container_name: server
+  #   volumes:
+  #     - .:/workspace
+  #     - /workspace/server/node_modules
+  #   working_dir: /workspace/server
+  #   command: /bin/bash -c "npm install && npm run watch"
+  #   ports:
+  #     - "3001:3001"
+  #   depends_on:
+  #     - postgres
+  #     - mosquitto
+  #     - pgadmin
 
   postgres:
     image: postgres

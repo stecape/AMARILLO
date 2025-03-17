@@ -6,8 +6,7 @@ import { Server } from "socket.io"
 
 let server
 
-export default function () {
-
+const app_ws = () => {
 
   //Express App creation
   const app = express()
@@ -17,15 +16,14 @@ export default function () {
 
   //socket.io WebSocket creation and running on the http server
   const io = new Server(server, { cors: { origin: '*' } })
-  const connection = io.on('connect', s => {
+  io.on('connect', s => {
     console.log('socket.io connection', s.id)
     s.on("error", (err) => console.log("Caught socket error: ", err))
-    return s
   })
   
   //Start listening for http req
-  server.listen(ws_port, () => console.log('listening on http://localhost:' + ws_port + '/'))
-  return {connection: connection, expressApp: app}
+  server.listen(ws_port, '0.0.0.0', () => console.log('listening on http://localhost:' + ws_port + '/'))
+  return {connection: io, expressApp: app}
 }
 
 export function close () {
@@ -36,3 +34,5 @@ export function close () {
     server.removeAllListeners()
   }
 }
+
+export default app_ws

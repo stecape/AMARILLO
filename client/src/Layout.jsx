@@ -10,6 +10,8 @@ import {
   AppBarTitle,
   APP_BAR_OFFSET_CLASSNAME
 } from "@react-md/app-bar"
+import { PhonelinkEraseSVGIcon } from "@react-md/material-icons"
+import { StayPrimaryPortraitSVGIcon } from "@react-md/material-icons"
 import { CloudOffSVGIcon } from "@react-md/material-icons"
 import { CloudQueueSVGIcon } from "@react-md/material-icons"
 import { useLocation, Link } from "react-router-dom"
@@ -17,7 +19,7 @@ import { ctxData } from "./Helpers/CtxProvider"
 import navItems from "./navItems"
 
 import App from "./App"
-const appBar = (pathname, socketConnected) => {
+const appBar = (pathname, backendConnected, dbConnected) => {
   return (
     <LayoutAppBar theme="primary">
       <AppBarTitle
@@ -26,7 +28,8 @@ const appBar = (pathname, socketConnected) => {
         <>Amarillo - {pathname.replace("/", "").toUpperCase()}</>
       </AppBarTitle>
 
-      {socketConnected ? <CloudQueueSVGIcon style={{ marginRight: "20px" }} /> : <CloudOffSVGIcon style={{ marginRight: "20px" }} />}
+      {dbConnected ? <StayPrimaryPortraitSVGIcon style={{ marginRight: "20px" }} /> : <PhonelinkEraseSVGIcon style={{ marginRight: "20px" }} />}
+      {backendConnected ? <CloudQueueSVGIcon style={{ marginRight: "20px" }} /> : <CloudOffSVGIcon style={{ marginRight: "20px" }} />}
     </LayoutAppBar>
   )
 }
@@ -47,7 +50,7 @@ export default function MyLayout() {
 
   return (
     <Layout
-      appBar={appBar(pathname, ctx.socketStatus.connected)}
+      appBar={appBar(pathname, ctx.backendStatus.backendConnected, ctx.backendStatus.dbConnected)}
       navHeaderTitle="Menu"
       treeProps={useLayoutNavigation(navItems, pathname, Link)}
       mainProps={elementProps}

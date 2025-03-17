@@ -10,7 +10,8 @@ function LogicSelection(props) {
   const ctx = useContext(ctxData);
   let device = ctx.devices.filter(d => d.id === props.ctrl.device)[0].name;
   let commandId = props.ctrl.fields.Command;
-  let status = ctx.tags.filter(t => t.id === props.ctrl.fields.Status)[0].value.value;
+  let status = ctx.tags.filter(t => t.id === props.ctrl.fields.Status)[0].value;
+  if (status === null) status = 0;
   let logic_state = ctx.logicStates.filter(l => l.id === props.ctrl.logic_state)[0].value;
 
   return (
