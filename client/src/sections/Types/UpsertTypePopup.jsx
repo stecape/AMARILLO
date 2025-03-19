@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react"
 import { AppBar, AppBarTitle, AppBarNav } from '@react-md/app-bar'
 import { Grid, GridCell } from '@react-md/utils'
 import { Dialog, DialogContent } from "@react-md/dialog"
-import { ArrowBackSVGIcon } from '@react-md/material-icons'
+import { ArrowBackFontIcon } from '@react-md/material-icons'
 import FieldsList from './UpsertType/FieldsList'
 import NewField from './UpsertType/NewField'
 import TypeName from './UpsertType/TypeName'
@@ -82,7 +82,7 @@ function UpsertTypePopup (props) {
     >
     <AppBar id={`appbarT`} theme="primary" key="primary">
       <AppBarNav onClick={handleReset} aria-label="Close">
-        <ArrowBackSVGIcon />
+        <ArrowBackFontIcon />
       </AppBarNav>
       <AppBarTitle>{"Creating Type"}</AppBarTitle>
     </AppBar>

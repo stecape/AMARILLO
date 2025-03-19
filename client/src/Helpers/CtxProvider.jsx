@@ -15,7 +15,7 @@ export const CtxProvider = ({ children }) => {
   const [logicStates, setLogicStates] = useState([])
   const [vars, setVars] = useState([])
   const [tags, setTags] = useState([])
-  const [backendStatus, setBackendStatus] = useState({backendConnected: false, dbConnected: false, mqttBrokerOnline: false})
+  const [backendStatus, setBackendStatus] = useState({backendConnected: false, dbConnected: false, mqttConnected: false})
   const [init, setInit] = useState(false)
   const [devices, setDevices] = useState([]);
   const [controls, setControls] = useState([]); //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type
@@ -32,7 +32,7 @@ export const CtxProvider = ({ children }) => {
             axios.post('http://localhost:3001/api/getAll', { table: "LogicState", fields: ['id', 'name', 'value'] }),
             axios.post('http://localhost:3001/api/getAll', { table: "Var", fields: ['id', 'device', 'name', 'type', 'um', 'logic_state', 'comment'] }),
             axios.post('http://localhost:3001/api/getAll', { table: "Tag", fields: ['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "Device", fields: ['id', 'name'] }),
+            axios.post('http://localhost:3001/api/getAll', { table: "Device", fields: ['id', 'name', 'status'] }),
             axios.post('http://localhost:3001/api/getAllControls'),
             axios.post('http://localhost:3001/api/getBackendStatus')
           ];
@@ -57,13 +57,13 @@ export const CtxProvider = ({ children }) => {
           setTags(responses[5].data.result.map((val) => ({ id: val[0], name: val[1], var: val[2], parent_tag: val[3], type_field: val[4], um: val[5], logic_state: val[6], comment: val[7], value: val[8] })));
           addMessage({ children: responses[5].data.message });
       
-          setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1] })));
+          setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1], status: val[2] })));
           addMessage({ children: responses[6].data.message });
       
           setControls(responses[7].data.result);
           addMessage({ children: responses[7].data.message });
       
-          setBackendStatus(prevStatus => ({ ...prevStatus, dbConnected: responses[8].data.result.dbConnected }))
+          setBackendStatus(prevStatus => ({ ...prevStatus, dbConnected: responses[8].data.result.dbConnected, mqttConnected: responses[8].data.result.mqttConnected }));
           addMessage({ children: responses[8].data.message });
 
           setInit(true);
@@ -87,12 +87,12 @@ export const CtxProvider = ({ children }) => {
 
     const on_error = (...args) => {
       console.log("socket error:", args[0])
-      setBackendStatus({backendConnected: false})
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: false }))
     }
 
     const on_connect_error = (...args) => {
       console.log("socket connect error:", args[0])
-      setBackendStatus({backendConnected: false})
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: false }))
     }
 
     const on_update = async (...args) => {
@@ -299,6 +299,16 @@ export const CtxProvider = ({ children }) => {
       setBackendStatus(prevStatus => ({ ...prevStatus, dbConnected: false }))
     }
 
+    const on_mqtt_connected = () => {
+      console.log("Web Socket event received: mqttConnected")
+      setBackendStatus(prevStatus => ({ ...prevStatus, mqttConnected: true }))
+    }
+
+    const on_mqtt_disconnected = () => {
+      console.log("Web Socket event received: mqttDisconnected")
+      setBackendStatus(prevStatus => ({ ...prevStatus, mqttConnected: false }))
+    }
+
     //On component load request the lists
     if(init === false){
       retrieveData()
@@ -325,6 +335,12 @@ export const CtxProvider = ({ children }) => {
     //on dbDisconnected
     socket.on('dbDisconnected', on_db_disconnected)
 
+    //on mqttConnected
+    socket.on('mqttConnected', on_mqtt_connected)
+
+    //on mqttDisconnected
+    socket.on('mqttDisconnected', on_mqtt_disconnected)
+
     //dismantling listeners
     return () => {
       socket.off("connect", on_connect)
@@ -334,6 +350,8 @@ export const CtxProvider = ({ children }) => {
       socket.off('close', on_close)
       socket.off('dbConnected', on_db_connected)
       socket.off('dbDisconnected', on_db_disconnected)
+      socket.off('mqttConnected', on_mqtt_connected)
+      socket.off('mqttDisconnected', on_mqtt_disconnected)
     }
   }, [addMessage, init, backendStatus, logicStates, socket, types, fields, ums, vars, tags, devices, controls])
 

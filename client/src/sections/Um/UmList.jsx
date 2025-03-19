@@ -3,7 +3,7 @@ import { useAddMessage } from "@react-md/alert"
 import { Button } from "@react-md/button"
 import DeleteUmPopup from "./DeleteUmPopup"
 import UpsertUmPopup from "./UpsertUmPopup"
-import { DeleteSVGIcon, EditSVGIcon, AddSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -56,7 +56,7 @@ function UmList () {
                         aria-label="Permanently Delete"
                         onClick={()=> setDeletePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <DeleteSVGIcon />
+                        <DeleteFontIcon />
                       </Button>
                       <Button
                         id="icon-button-4"
@@ -64,7 +64,7 @@ function UmList () {
                         aria-label="Edit"
                         onClick={()=> setModifyUmPopup({visible: true, id: item.id, name: item.name, metric: item.metric, imperial: item.imperial, gain: item.gain, offset: item.offset})}
                       >
-                        <EditSVGIcon />
+                        <EditFontIcon />
                       </Button>
                   </TableCell>
                   <TableCell />
@@ -74,7 +74,7 @@ function UmList () {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button floating="bottom-right" onClick={()=> setCreateUmPopup({visible: true})}><AddSVGIcon /></Button>
+      <Button floating="bottom-right" onClick={()=> setCreateUmPopup({visible: true})}><AddFontIcon /></Button>
       
       <DeleteUmPopup 
         visible={deletePopup.visible}

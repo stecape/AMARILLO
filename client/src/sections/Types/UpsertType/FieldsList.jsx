@@ -2,7 +2,7 @@ import { useState, useContext } from "react"
 import { Button } from "@react-md/button"
 import DeleteFieldPopup from "./DeleteFieldPopup"
 import ModifyFieldPopup from "./ModifyFieldPopup"
-import { DeleteSVGIcon, EditSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -142,7 +142,7 @@ function FieldsList () {
                         aria-label="Permanently Delete"
                         onClick={() => setDeletePopup({visible: true, name: item.name, QRef: item.QRef})}
                       >
-                        <DeleteSVGIcon />
+                        <DeleteFontIcon />
                       </Button>
                       <Button
                         id="icon-button-5"
@@ -150,7 +150,7 @@ function FieldsList () {
                         aria-label="Edit"
                         onClick={() => setModifyFieldPopup({visible: true, type: item.type, um: item.um, logic_state: item.logic_state, comment: item.comment, name: item.name, QRef: item.QRef})}
                       >
-                        <EditSVGIcon />
+                        <EditFontIcon />
                       </Button>
                   </TableCell>
                   </TableRow>

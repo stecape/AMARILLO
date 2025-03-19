@@ -3,7 +3,7 @@ import { AppBar, AppBarTitle, AppBarNav } from '@react-md/app-bar';
 import { Grid, GridCell } from '@react-md/utils'
 import { Button } from "@react-md/button"
 import { Dialog, DialogContent } from "@react-md/dialog"
-import { ArrowBackSVGIcon } from '@react-md/material-icons';
+import { ArrowBackFontIcon } from '@react-md/material-icons';
 import {
   Form,
   TextField,
@@ -44,7 +44,7 @@ function UpsertTemplatePopup (props) {
     >
     <AppBar id={`appbarT`} theme="primary" key="primary">
       <AppBarNav onClick={handleReset} aria-label="Close">
-        <ArrowBackSVGIcon />
+        <ArrowBackFontIcon />
       </AppBarNav>
       <AppBarTitle>{props.create ? "Creating Template" : "Modifying " + modalState.name}</AppBarTitle>
     </AppBar>

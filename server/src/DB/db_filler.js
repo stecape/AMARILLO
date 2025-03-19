@@ -1,13 +1,6 @@
-import pkg from 'pg'
-import { db_dialect, db_user, db_password, db_host, db_port, db_name } from './db_config.js'
-
-const connStr = `${db_dialect}://${db_user}:${db_password}@${db_host}:${db_port}/${db_name}`
-let pool
-
-export default function () {
+// Init DB with tables and triggers
+export default function (client) {
   return new Promise((innerResolve, innerReject) => {
-    const {Pool} = pkg
-    pool = new Pool({ connectionString: connStr })
     var queryString=`
     CREATE TABLE IF NOT EXISTS public."Field"
     (
@@ -327,10 +320,10 @@ export default function () {
     CREATE OR REPLACE TRIGGER LogicStateDeletingTrigger AFTER DELETE ON "LogicState" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER LogicStateTruncatingTrigger AFTER TRUNCATE ON "LogicState" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
   `
-    pool.query({
+  client.query({
       text: queryString
     })
-    .then(() => {innerResolve(pool)})
+    .then(() => {innerResolve()})
     .catch(err => {
       console.log("Error during DB initialization")
       innerReject(err)

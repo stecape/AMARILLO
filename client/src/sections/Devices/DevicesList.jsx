@@ -2,7 +2,7 @@ import { useState, useContext } from "react"
 import { Button } from "@react-md/button"
 import DeleteDevicePopup from "./DeleteDevicePopup"
 import UpsertDevicePopup from "./UpsertDevicePopup"
-import { DeleteSVGIcon, EditSVGIcon, AddSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -28,6 +28,7 @@ function DevicesList () {
           <TableHeader>
             <TableRow>
               <TableCell hAlign="left" grow >Name</TableCell>
+              <TableCell hAlign="center">Status</TableCell>
               <TableCell hAlign="center">Actions</TableCell>
             </TableRow>
           </TableHeader>
@@ -38,6 +39,7 @@ function DevicesList () {
                     key={item.id}
                   >
                     <TableCell className={tableStyles.cell} hAlign="left">{item.name}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="center">{item.status === 0 || item.status == null ? "Offline" : "Online"}</TableCell>
                     <TableCell className={tableStyles.cell}>
                       <Button
                         buttonType="icon"
@@ -45,14 +47,14 @@ function DevicesList () {
                         aria-label="Permanently Delete"
                         onClick={()=> setDeletePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <DeleteSVGIcon />
+                        <DeleteFontIcon />
                       </Button>
                       <Button
                         buttonType="icon"
                         aria-label="Edit"
                         onClick={()=> setModifyDevicePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <EditSVGIcon />
+                        <EditFontIcon />
                       </Button>
                   </TableCell>
                   <TableCell />
@@ -62,7 +64,7 @@ function DevicesList () {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button floating="bottom-right" onClick={()=> setCreateDevicePopup({visible: true})}><AddSVGIcon /></Button>
+      <Button floating="bottom-right" onClick={()=> setCreateDevicePopup({visible: true})}><AddFontIcon /></Button>
       
       <DeleteDevicePopup 
         visible={deletePopup.visible}

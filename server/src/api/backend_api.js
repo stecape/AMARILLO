@@ -1,4 +1,5 @@
-import {dbConnected} from '../DB/db_listener.js' 
+import {dbConnected} from '../DB/db_manager.js' 
+import {mqttClient} from './mqtt_api.js' 
 
 export default function (app) {
 
@@ -15,7 +16,8 @@ export default function (app) {
   app.post('/api/getBackendStatus', (req, res) => {
     res.json({
       result: {
-        dbConnected: dbConnected
+        dbConnected: dbConnected,
+        mqttConnected: mqttClient.connected
       },
       message: "Backend Status retrieved"
     })

@@ -2,7 +2,7 @@ import { useState, useContext } from "react"
 import { Button } from "@react-md/button"
 import DeleteVarPopup from "./DeleteVarPopup"
 import UpsertVarPopup from "./UpsertVarPopup"
-import { DeleteSVGIcon, EditSVGIcon, AddSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -59,14 +59,14 @@ function VarsList () {
                         aria-label="Permanently Delete"
                         onClick={()=> setDeletePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <DeleteSVGIcon />
+                        <DeleteFontIcon />
                       </Button>
                       <Button
                         buttonType="icon"
                         aria-label="Edit"
                         onClick={()=> setModifyVarPopup({visible: true, id: item.id, type: item.type, um: item.um, logic_state: item.logic_state, comment: item.comment, name: item.name, device: item.device})}
                       >
-                        <EditSVGIcon />
+                        <EditFontIcon />
                       </Button>
                   </TableCell>
                   <TableCell />
@@ -76,7 +76,7 @@ function VarsList () {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button floating="bottom-right" onClick={()=> setCreateVarPopup({visible: true})}><AddSVGIcon /></Button>
+      <Button floating="bottom-right" onClick={()=> setCreateVarPopup({visible: true})}><AddFontIcon /></Button>
       
       <DeleteVarPopup 
         visible={deletePopup.visible}

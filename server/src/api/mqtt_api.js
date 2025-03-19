@@ -1,8 +1,10 @@
 import globalEventEmitter from '../Helpers/globalEventEmitter.js'
 import mqtt from 'mqtt'
 
+export var mqttClient = {connected: false}
+
 export default function (app, pool) {
-  const mqttClient = mqtt.connect("mqtt://localhost:1883")
+  mqttClient = mqtt.connect("mqtt://localhost:1883")
 
   // Funzione per recuperare l'elenco dei dispositivi dal database
   const getDevices = async () => {
@@ -41,10 +43,29 @@ export default function (app, pool) {
     })
   }
 
+  //emissione di eventi per comunicare al client lo stato della connessione
   mqttClient.on("connect", () => {
+    globalEventEmitter.emit('mqttConnected')
     subscribeToDevices()
   })
-  
+
+  mqttClient.on("error", () => {
+    globalEventEmitter.emit('mqttDisconnected')
+  })
+
+  mqttClient.on("close", () => {
+    globalEventEmitter.emit('mqttDisconnected')
+  })
+
+  mqttClient.on("end", () => {
+    globalEventEmitter.emit('mqttDisconnected')
+  })
+
+  mqttClient.on("disconnect", () => {
+    globalEventEmitter.emit('mqttDisconnected')
+  })
+  //
+
   const mqttWrite = (device, command) => {
     console.log(command)
     mqttClient.publish(`/command/${device}`, JSON.stringify(command))

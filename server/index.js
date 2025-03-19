@@ -1,4 +1,4 @@
-import app_ws, {close} from './src/App/app_ws.js'
+import app_ws from './src/App/app_ws.js'
 import { db_manager } from './src/DB/db_manager.js'
 import app_wsMessageBroker from './src/App/app_wsMessageBroker.js'
 import backend_api from './src/api/backend_api.js'
@@ -22,7 +22,7 @@ const startApp = () => {
       mqtt_api(expressApp, pool)
       controls_api(expressApp, pool)
     })
-    .catch((err) => console.error('Error connecting to the database', err))
+    .catch(() => console.error('Index: Error connecting to the database'))
 }
 
 startApp()

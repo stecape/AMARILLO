@@ -1,4 +1,4 @@
-import { HomeSVGIcon, AllInclusiveSVGIcon, AllOutSVGIcon, SettingsInputComponentSVGIcon, DevicesOtherSVGIcon, BatteryUnknownSVGIcon, TransformSVGIcon, ErrorSVGIcon } from "@react-md/material-icons";
+import { HomeFontIcon, AllInclusiveFontIcon, AllOutFontIcon, SettingsInputComponentFontIcon, DevicesOtherFontIcon, BatteryUnknownFontIcon, TransformFontIcon, ErrorFontIcon } from "@react-md/material-icons";
 
 /**
  * Note: The `parentId` **must** be defaulted to `null` for the navigation tree
@@ -22,16 +22,16 @@ function createRoute(
 }
 
 const navItems = {
-  "/": createRoute("/", "Home", <HomeSVGIcon />),
-  "/types": createRoute("/types", "Types", <AllOutSVGIcon />),
-  "/um": createRoute("/um", "um", <TransformSVGIcon />),
-  "/logicState": createRoute("/logicState", "Logic State", <TransformSVGIcon />),
-  "/templates": createRoute("/templates", "Device Templates", <BatteryUnknownSVGIcon />),
-  "/devices": createRoute("/devices", "Devices", <DevicesOtherSVGIcon />),
-  "/vars": createRoute("/vars", "Vars", <AllInclusiveSVGIcon />),
-  "/alarms": createRoute("/alarms", "Alarms", <ErrorSVGIcon />),
-  "/tags": createRoute("/tags", "Tags", <SettingsInputComponentSVGIcon />),
-  "/controls": createRoute("/controls", "Controls", <SettingsInputComponentSVGIcon />),
+  "/": createRoute("/", "Home", <HomeFontIcon />),
+  "/types": createRoute("/types", "Types", <AllOutFontIcon />),
+  "/um": createRoute("/um", "um", <TransformFontIcon />),
+  "/logicState": createRoute("/logicState", "Logic State", <TransformFontIcon />),
+  "/templates": createRoute("/templates", "Device Templates", <BatteryUnknownFontIcon />),
+  "/devices": createRoute("/devices", "Devices", <DevicesOtherFontIcon />),
+  "/vars": createRoute("/vars", "Vars", <AllInclusiveFontIcon />),
+  "/alarms": createRoute("/alarms", "Alarms", <ErrorFontIcon />),
+  "/tags": createRoute("/tags", "Tags", <SettingsInputComponentFontIcon />),
+  "/controls": createRoute("/controls", "Controls", <SettingsInputComponentFontIcon />),
 };
 
 export default navItems;

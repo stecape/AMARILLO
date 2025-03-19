@@ -3,7 +3,7 @@ import { useAddMessage } from "@react-md/alert"
 import { Button } from "@react-md/button"
 import DeleteLogicStatePopup from "./DeleteLogicStatePopup"
 import UpsertLogicStatePopup from "./UpsertLogicStatePopup"
-import { DeleteSVGIcon, EditSVGIcon, AddSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -50,7 +50,7 @@ function LogicStatesList () {
                         aria-label="Permanently Delete"
                         onClick={()=> setDeletePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <DeleteSVGIcon />
+                        <DeleteFontIcon />
                       </Button>
                       <Button
                         id="icon-button-4"
@@ -58,7 +58,7 @@ function LogicStatesList () {
                         aria-label="Edit"
                         onClick={()=> setModifyLogicStatePopup({visible: true, id: item.id, name: item.name, value: item.value})}
                       >
-                        <EditSVGIcon />
+                        <EditFontIcon />
                       </Button>
                   </TableCell>
                   <TableCell />
@@ -68,7 +68,7 @@ function LogicStatesList () {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button floating="bottom-right" onClick={()=> setCreateLogicStatePopup({visible: true})}><AddSVGIcon /></Button>
+      <Button floating="bottom-right" onClick={()=> setCreateLogicStatePopup({visible: true})}><AddFontIcon /></Button>
       
       <DeleteLogicStatePopup 
         visible={deletePopup.visible}

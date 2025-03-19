@@ -3,7 +3,7 @@ import { useAddMessage } from "@react-md/alert"
 import { Button } from "@react-md/button"
 import DeleteTypePopup from "./DeleteTypePopup"
 import UpsertTypePopup from "./UpsertTypePopup"
-import { DeleteSVGIcon, EditSVGIcon, AddSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -49,7 +49,7 @@ function TypesList () {
                       onClick={()=> setDeletePopup({visible: true, id: item.id, name: item.name})}
                       disabled={item.locked}
                     >
-                      <DeleteSVGIcon />
+                      <DeleteFontIcon />
                     </Button>
                     <Button
                       buttonType="icon"
@@ -85,7 +85,7 @@ function TypesList () {
                         })
                       }
                     >
-                      <EditSVGIcon />
+                      <EditFontIcon />
                     </Button>
                 </TableCell>
                 <TableCell />
@@ -102,7 +102,7 @@ function TypesList () {
           setUpsertTypePopup((prevState) => ({ ...prevState, visible: true }))  //it shows the popup
         }}
       >
-        <AddSVGIcon />
+        <AddFontIcon />
       </Button>
 
       <DeleteTypePopup 

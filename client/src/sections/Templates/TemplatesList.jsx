@@ -2,7 +2,7 @@ import { useState, useContext } from "react"
 import { Button } from "@react-md/button"
 import DeleteTemplatePopup from "./DeleteTemplatePopup"
 import UpsertTemplatePopup from "./UpsertTemplatePopup"
-import { DeleteSVGIcon, EditSVGIcon, AddSVGIcon } from "@react-md/material-icons"
+import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
 import {
   Table,
   TableBody,
@@ -45,14 +45,14 @@ function TemplatesList () {
                         aria-label="Permanently Delete"
                         onClick={()=> setDeletePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <DeleteSVGIcon />
+                        <DeleteFontIcon />
                       </Button>
                       <Button
                         buttonType="icon"
                         aria-label="Edit"
                         onClick={()=> setModifyTemplatePopup({visible: true, id: item.id, name: item.name})}
                       >
-                        <EditSVGIcon />
+                        <EditFontIcon />
                       </Button>
                   </TableCell>
                   <TableCell />
@@ -62,7 +62,7 @@ function TemplatesList () {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button floating="bottom-right" onClick={()=> setCreateTemplatePopup({visible: true})}><AddSVGIcon /></Button>
+      <Button floating="bottom-right" onClick={()=> setCreateTemplatePopup({visible: true})}><AddFontIcon /></Button>
       
       <DeleteTemplatePopup 
         visible={deletePopup.visible}
