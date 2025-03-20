@@ -1,10 +1,14 @@
 import globalEventEmitter from '../Helpers/globalEventEmitter.js'
 import mqtt from 'mqtt'
+import { mqtt_client_id } from '../App/app_config.js'
 
 export var mqttClient = {connected: false}
 
 export default function (app, pool) {
-  mqttClient = mqtt.connect("mqtt://localhost:1883")
+  mqttClient = mqtt.connect("mqtt://localhost:1883", {
+    clientId: mqtt_client_id, // Sostituisci con il tuo clientId
+    clean: true, // Opzionale: indica se il broker deve mantenere lo stato del client
+  })
 
   // Funzione per recuperare l'elenco dei dispositivi dal database
   const getDevices = async () => {
