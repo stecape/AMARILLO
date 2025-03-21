@@ -5,8 +5,11 @@ import { mqtt_client_id } from '../App/app_config.js'
 export var mqttClient = {connected: false}
 
 export default function (app, pool) {
+
+  let devices = []
+
   mqttClient = mqtt.connect("mqtt://localhost:1883", {
-    clientId: mqtt_client_id, // Sostituisci con il tuo clientId
+    clientId: mqtt_client_id, // Opzionale: identificativo del client
     clean: true, // Opzionale: indica se il broker deve mantenere lo stato del client
   })
 
@@ -24,7 +27,21 @@ export default function (app, pool) {
 
   // Funzione per eseguire la subscription per ogni dispositivo
   const subscribeToDevices = async () => {
-    const devices = await getDevices()
+    mqttClient.subscribe(`/birth`, (err) => {
+      if (!err) {
+        console.log(`Subscribed to /birth`)
+      } else {
+        console.error(`Failed to subscribe to /birth:`, err)
+      }
+    })
+    mqttClient.subscribe(`/lwt`, (err) => {
+      if (!err) {
+        console.log(`Subscribed to /lwt`)
+      } else {
+        console.error(`Failed to subscribe to /lwt:`, err)
+      }
+    })
+    devices = await getDevices()
     devices.forEach(device => {
       mqttClient.subscribe(`/feedback/${device}`, (err) => {
         if (!err) {
@@ -48,9 +65,18 @@ export default function (app, pool) {
   }
 
   //emissione di eventi per comunicare al client lo stato della connessione
-  mqttClient.on("connect", () => {
+  mqttClient.on("connect", async () => {
+    console.log("Connected to MQTT broker")
     globalEventEmitter.emit('mqttConnected')
-    subscribeToDevices()
+    await subscribeToDevices()
+    devices.forEach(device => {
+      //request the HMI values
+      mqttClient.publish(`/command/${device}`, JSON.stringify({id: 0, value: 2}))
+      //request the Ping to get the status of the device
+      mqttClient.publish(`/command/${device}`, JSON.stringify({id: 0, value: 3}))
+    })
+    //ask for a refresh of the HMI values with the payload {id: 0, value: 2} to all the devices in the table "Device"
+
   })
 
   mqttClient.on("error", () => {
@@ -98,15 +124,66 @@ export default function (app, pool) {
   "value": 23
   }
   */
-  mqttClient.on("message", (topic, message) => {
-    const data = JSON.parse(message.toString())
-    const queryString=`UPDATE "Tag" SET value = '${JSON.stringify({value: data.value})}' WHERE id = ${data.id}`
-    console.log(queryString)
-        pool.query({
-          text: queryString,
-          rowMode: 'array'
-        })
-  })  
+  mqttClient.on("message", async (topic, message) => {
+    try {
+      const payload = message.toString();
+      const data = JSON.parse(payload); // Attempt to parse the message payload
+  
+      if (topic === "/birth") {
+        // Update the status of the device in the "Device" table to 1
+        const updateQuery = `UPDATE "Device" SET status = 1 WHERE name = $1`;
+        try {
+          await pool.query(updateQuery, [data.deviceId]);
+          console.log(`Device ${data.deviceId} status updated to 1`);
+  
+          // Publish the command to the device
+          mqttClient.publish(`/command/${data.deviceId}`, JSON.stringify({ id: 0, value: 2 }));
+          console.log(`Published to /command/${data.deviceId} with payload {id: 0, value: 2}`);
+        } catch (err) {
+          console.error(`Failed to update status for device ${data.deviceId}:`, err);
+        }
+      } else if (topic === "/lwt") {
+        // Update the status of the device in the "Device" table to 0
+        console.log(`Device ${data.deviceId} went offline`);
+        const updateQuery = `UPDATE "Device" SET status = 0 WHERE name = $1`;
+        try {
+          await pool.query(updateQuery, [data.deviceId]);
+          console.log(`Device ${data.deviceId} status updated to 0`);
+        } catch (err) {
+          console.error(`Failed to update status for device ${data.deviceId}:`, err);
+        }
+      } else {
+        // Handle other topics
+        if (data && (data.id !== undefined && data.value !== undefined) || data.deviceId !== undefined) { // Validate the parsed data
+          if (data.id == 0) {
+            if (data.value == 3) {
+              // Update the status of the device in the "Device" table to 1
+              const updateQuery = `UPDATE "Device" SET status = 1 WHERE name = $1`; 
+              try {
+                await pool.query(updateQuery, [data.deviceId]);
+                console.log(`Device ${data.deviceId} status updated to 1`);
+              } catch (err) {
+                console.error(`Failed to update status for device ${data.deviceId}:`, err);
+              }
+            }
+          } else {
+            // Update the value of the tag in the "Tag" table
+            const queryString = `UPDATE "Tag" SET value = '${JSON.stringify({ value: data.value })}' WHERE id = ${data.id}`;
+            //console.log(queryString);
+            pool.query({
+              text: queryString,
+              rowMode: 'array',
+            });
+            //SCOMMENTAconsole.log(`Updated tag ${data.id} with value ${data.value}`);
+          } 
+        } else {
+          console.error("Invalid data format received:", data);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to process MQTT message:", err.message, "Message:", message.toString());
+    }
+  });
 
   // Ascolta gli eventi emessi dalla CRUD API
   globalEventEmitter.on('deviceAdded', async () => {

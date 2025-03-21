@@ -19,7 +19,7 @@ export default function (client) {
       // Listen for all pg_notify channel messages and loggin them
       client.on('notification', function (msg) {
         let payload = JSON.parse(msg.payload);
-        console.log(payload);
+        //console.log(payload);
         globalEventEmitter.emit('update', payload);
       })
   })

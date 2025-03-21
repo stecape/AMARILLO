@@ -105,7 +105,7 @@ export default function (app, pool) {
   */
   app.post('/api/getAll', (req, res) => {
     var queryString=`SELECT ${req.body.fields.join(',')} FROM "${req.body.table}" ORDER BY id ASC`
-    console.log(queryString)
+    //console.log(queryString)
     pool.query({
       text: queryString,
       rowMode: 'array'
@@ -623,7 +623,7 @@ export default function (app, pool) {
               varType = v[2]
               varUm = v[3]
               varLogicState = v[4]
-              console.log(varId, varName, varType, typesList, fieldsList, varUm, varLogicState)
+              //console.log(varId, varName, varType, typesList, fieldsList, varUm, varLogicState)
               promises.push(
                 GenerateTags(varId, varName, varType, typesList, fieldsList, varUm, varLogicState)
                 .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
@@ -687,7 +687,7 @@ export default function (app, pool) {
 
   app.post('/api/modifyUm', (req, res) => {
     var queryString = `UPDATE "um" SET name='${req.body.name}', metric='${req.body.metric}', imperial='${req.body.imperial}', gain=${req.body.gain}, "offset"=${req.body.offset} WHERE id = ${req.body.id}`
-    console.log(queryString)
+    //console.log(queryString)
     pool.query({
       text: queryString,
       rowMode: 'array'
@@ -780,7 +780,7 @@ export default function (app, pool) {
 
   app.post('/api/modifyLogicState', (req, res) => {
     var queryString = `UPDATE "LogicState" SET name='${req.body.name}', value=ARRAY[${req.body.value.map(item => `'${item}'`)}] WHERE id = ${req.body.id}`
-    console.log(queryString)
+    //console.log(queryString)
     pool.query({
       text: queryString,
       rowMode: 'array'
