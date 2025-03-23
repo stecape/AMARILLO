@@ -58,6 +58,7 @@ function initialize(pool) {
 
     // Gestisci errori imprevisti sul pool (registra solo una volta)
     if (!pool._errorHandlerRegistered) {
+      console.log("Initialize: Registering error handler on pool")
       pool.on('error', (err) => {
         console.error('Unexpected error on pool', err);
         dbConnected = false;

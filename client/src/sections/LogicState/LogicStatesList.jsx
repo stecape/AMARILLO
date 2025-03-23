@@ -17,6 +17,8 @@ import {ctxData} from "../../Helpers/CtxProvider"
 import tableStyles from '../../styles/Table.module.scss'
 
 function LogicStatesList () {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const addMessage = useAddMessage()
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
@@ -74,7 +76,7 @@ function LogicStatesList () {
         visible={deletePopup.visible}
         name={deletePopup.name}
         delLogicState={()=>{
-          axios.post('http://localhost:3001/api/removeLogicState', {id: deletePopup.id})
+          axios.post(`${serverIp}/api/removeLogicState`, {id: deletePopup.id})
             .then(response => {
               addMessage({children: response.data.message})
             })
@@ -111,7 +113,7 @@ function LogicStatesList () {
         value={modifyLogicStatePopup.value}
         modalType="full-page"
         upsertLogicState={(data)=>{
-          axios.post('http://localhost:3001/api/modifyLogicState', {...data, id: modifyLogicStatePopup.id})
+          axios.post(`${serverIp}/api/modifyLogicState`, {...data, id: modifyLogicStatePopup.id})
             .then(setModifyLogicStatePopup((prevState) => ({ ...prevState, visible: false, value: Array(8).fill("")  })))
         }}
         cancelCommand={()=>{
@@ -125,7 +127,7 @@ function LogicStatesList () {
         value={Array(8).fill("")}
         modalType="full-page"
         upsertLogicState={(data)=>{
-          axios.post('http://localhost:3001/api/addLogicState', data)
+          axios.post(`${serverIp}/api/addLogicState`, data)
             .then(setCreateLogicStatePopup((prevState) => ({ ...prevState, visible: false, value: Array(8).fill("") })))
         }}
         cancelCommand={()=>{

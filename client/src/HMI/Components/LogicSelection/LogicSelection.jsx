@@ -6,7 +6,10 @@ import styles from "./LogicSelection.module.scss";
 import { ctxData } from "../../../Helpers/CtxProvider";
 import axios from 'axios';
 
+
 function LogicSelection(props) {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData);
   let device = ctx.devices.filter(d => d.id === props.ctrl.device)[0].name;
   let commandId = props.ctrl.fields.Command;
@@ -32,7 +35,7 @@ function LogicSelection(props) {
               key={i}
               themeType="outline"
               theme={status.value === Math.pow(2, i) ? "primary" : "clear"}
-              onClick={() => axios.post('http://localhost:3001/api/mqtt/write', { device: device, id: commandId, value: Math.pow(2, i) })}
+              onClick={() => axios.post(`${serverIp}/api/mqtt/write`, { device: device, id: commandId, value: Math.pow(2, i) })}
               className={styles.button}
             >
               {state}

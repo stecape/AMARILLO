@@ -18,6 +18,8 @@ import { UpsertTypeContext } from "./UpsertType/UpsertTypeContext";
 import tableStyles from '../../styles/Table.module.scss'
 
 function TypesList () {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const addMessage = useAddMessage()
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
@@ -68,7 +70,7 @@ function TypesList () {
                         //The context is populated also with the "all types" array, to allow the "no duplicate name" validation,
                         //and with the types list which is included with the types that are not included in the dependencies array, 
                         //to avoid circular references
-                        axios.post('http://localhost:3001/api/getFields', {type: item.id})
+                        axios.post(`${serverIp}/api/getFields`, {type: item.id})
                         .then((res) => {
                           console.log(res)
                           setUpsertType(() => ({
@@ -109,7 +111,7 @@ function TypesList () {
         visible={deletePopup.visible}
         name={deletePopup.name}
         delType={()=>{
-          axios.post('http://localhost:3001/api/removeType', {id: deletePopup.id})
+          axios.post(`${serverIp}/api/removeType`, {id: deletePopup.id})
             .then(response => {
               addMessage({children: response.data.message})
             })

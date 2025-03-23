@@ -16,10 +16,13 @@ import {ctxData} from "../../Helpers/CtxProvider"
 import tableStyles from '../../styles/Table.module.scss'
 
 function DevicesList () {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
   const [modifyDevicePopup, setModifyDevicePopup] = useState({ visible: false, id: 0, name: '' })
   const [createDevicePopup, setCreateDevicePopup] = useState({ visible: false })
+  
 
   return(
     <>
@@ -70,7 +73,7 @@ function DevicesList () {
         visible={deletePopup.visible}
         name={deletePopup.name}
         delDevice={()=>{
-          axios.post('http://localhost:3001/api/removeDevice', {id: deletePopup.id})
+          axios.post(`${serverIp}/api/removeDevice`, {id: deletePopup.id})
             .then(setDeletePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -82,7 +85,7 @@ function DevicesList () {
         name={modifyDevicePopup.name}
         modalType="full-page"
         upsertDevice={(data)=>{
-          axios.post('http://localhost:3001/api/modifyDevice', {...data, id: modifyDevicePopup.id})
+          axios.post(`${serverIp}/api/modifyDevice`, {...data, id: modifyDevicePopup.id})
             .then(setModifyDevicePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -95,7 +98,7 @@ function DevicesList () {
         name=""
         modalType="full-page"
         upsertDevice={(data)=>{
-          axios.post('http://localhost:3001/api/addDevice', data)
+          axios.post(`${serverIp}/api/addDevice`, data)
             .then(setCreateDevicePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{

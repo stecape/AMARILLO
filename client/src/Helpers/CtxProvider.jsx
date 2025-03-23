@@ -3,10 +3,13 @@ import { useAddMessage } from "@react-md/alert"
 import { SocketContext } from './socket'
 import axios from 'axios'
 
+// Usa la variabile d'ambiente per configurare l'URL del server
+
 export const ctxData = createContext()
 
 export const CtxProvider = ({ children }) => {
-
+  
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const addMessage = useAddMessage()
   const socket = useContext(SocketContext)
   const [types, setTypes] = useState([])
@@ -15,26 +18,36 @@ export const CtxProvider = ({ children }) => {
   const [logicStates, setLogicStates] = useState([])
   const [vars, setVars] = useState([])
   const [tags, setTags] = useState([])
-  const [backendStatus, setBackendStatus] = useState({backendConnected: false, dbConnected: false, mqttConnected: false})
+  const [backendStatus, setBackendStatus] = useState({backendConnected: socket.connected, dbConnected: false, mqttConnected: false})
   const [init, setInit] = useState(false)
   const [devices, setDevices] = useState([]);
   const [controls, setControls] = useState([]); //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type
   useEffect(() => {
 
+    const getAllControls = async () => {
+      try {
+        const response = await axios.post(`${serverIp}/api/getAllControls`);
+        setControls(response.data.result);
+        addMessage({ children: response.data.message });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    
     const retrieveData = async () => {
       if (socket.connected) {
         try {
           console.log("trying to retrieve data")
           const requests = [
-            axios.post('http://localhost:3001/api/getAll', { table: "Type", fields: ["name", "id", "base_type", "locked"] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "Field", fields: ['id', 'name', 'type', 'parent_type', 'um', 'logic_state', 'comment'] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "um", fields: ['id', 'name', 'metric', 'imperial', 'gain', '"offset"'] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "LogicState", fields: ['id', 'name', 'value'] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "Var", fields: ['id', 'device', 'name', 'type', 'um', 'logic_state', 'comment'] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "Tag", fields: ['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
-            axios.post('http://localhost:3001/api/getAll', { table: "Device", fields: ['id', 'name', 'status'] }),
-            axios.post('http://localhost:3001/api/getAllControls'),
-            axios.post('http://localhost:3001/api/getBackendStatus')
+            axios.post(`${serverIp}/api/getAll`, { table: "Type", fields: ["name", "id", "base_type", "locked"] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Field", fields: ['id', 'name', 'type', 'parent_type', 'um', 'logic_state', 'comment'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "um", fields: ['id', 'name', 'metric', 'imperial', 'gain', '"offset"'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "LogicState", fields: ['id', 'name', 'value'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Var", fields: ['id', 'device', 'name', 'type', 'um', 'logic_state', 'comment'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Tag", fields: ['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Device", fields: ['id', 'name', 'status'] }),
+            axios.post(`${serverIp}/api/getAllControls`),
+            axios.post(`${serverIp}/api/getBackendStatus`)
           ];
       
           const responses = await Promise.all(requests);
@@ -63,7 +76,7 @@ export const CtxProvider = ({ children }) => {
           setControls(responses[7].data.result);
           addMessage({ children: responses[7].data.message });
       
-          setBackendStatus(prevStatus => ({ ...prevStatus, dbConnected: responses[8].data.result.dbConnected, mqttConnected: responses[8].data.result.mqttConnected }));
+          setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, dbConnected: responses[8].data.result.dbConnected, mqttConnected: responses[8].data.result.mqttConnected }));
           addMessage({ children: responses[8].data.message });
 
           setInit(true);
@@ -87,12 +100,12 @@ export const CtxProvider = ({ children }) => {
 
     const on_error = (...args) => {
       console.log("socket error:", args[0])
-      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: false }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected }))
     }
 
     const on_connect_error = (...args) => {
       console.log("socket connect error:", args[0])
-      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: false }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected }))
     }
 
     const on_update = async (...args) => {
@@ -274,39 +287,35 @@ export const CtxProvider = ({ children }) => {
       }
 
       // Fetch updated controls
-      try {
-        const response = await axios.post('http://localhost:3001/api/getAllControls');
-        setControls(response.data.result);
-        addMessage({ children: response.data.message });
-      } catch (error) {
-        console.log(error);
+      if (value.table !== "Tag") {
+        getAllControls()
       }
     }
 
     const on_close = (...args) => {
       console.log("socket closed:", args[0])
-      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: false }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected }))
     }
 
     const on_db_connected = () => {
       console.log("Web Socket event received: dbConnected")
-      setBackendStatus(prevStatus => ({ ...prevStatus, dbConnected: true }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, dbConnected: true }))
       retrieveData()
     }
 
     const on_db_disconnected = () => {
       console.log("Web Socket event received: dbDisconnected")
-      setBackendStatus(prevStatus => ({ ...prevStatus, dbConnected: false }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, dbConnected: false }))
     }
 
     const on_mqtt_connected = () => {
       console.log("Web Socket event received: mqttConnected")
-      setBackendStatus(prevStatus => ({ ...prevStatus, mqttConnected: true }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, mqttConnected: true }))
     }
 
     const on_mqtt_disconnected = () => {
       console.log("Web Socket event received: mqttDisconnected")
-      setBackendStatus(prevStatus => ({ ...prevStatus, mqttConnected: false }))
+      setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, mqttConnected: false }))
     }
 
     //On component load request the lists
@@ -353,7 +362,7 @@ export const CtxProvider = ({ children }) => {
       socket.off('mqttConnected', on_mqtt_connected)
       socket.off('mqttDisconnected', on_mqtt_disconnected)
     }
-  }, [addMessage, init, backendStatus, logicStates, socket, types, fields, ums, vars, tags, devices, controls])
+  }, [serverIp, addMessage, init, backendStatus, logicStates, socket, types, fields, ums, vars, tags, devices, controls])
 
   const value = useMemo(
     () => ({ init, setInit, backendStatus, setBackendStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls }),

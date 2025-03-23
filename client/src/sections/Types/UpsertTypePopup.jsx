@@ -13,13 +13,14 @@ import axios from 'axios'
 import { UpsertTypeContext } from './UpsertType/UpsertTypeContext'
 
 function UpsertTypePopup (props) {
-  
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const {upsertType, setUpsertType} = useContext(UpsertTypeContext)
   const [modalState, setModalState] = useState({ visible: false, modalType: props.modalType })
   const _upsertType = () => {
     return new Promise((innerResolve, innerReject) => {
       
-      axios.post('http://localhost:3001/api/deleteTags')
+      axios.post(`${serverIp}/api/deleteTags`)
       .then(() => {
         
         var query = `DO $$ 
@@ -45,9 +46,9 @@ function UpsertTypePopup (props) {
             `
           END $$`
         console.log(query)
-        axios.post('http://localhost:3001/api/exec', {query: query})
+        axios.post(`${serverIp}/api/exec`, {query: query})
         .then(()=>{
-          axios.post('http://localhost:3001/api/refreshTags')
+          axios.post(`${serverIp}/api/refreshTags`)
           .then(() => {
             innerResolve()
           })

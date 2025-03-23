@@ -1,5 +1,6 @@
 import io from 'socket.io-client'
 import React from 'react'
 
-export const socket = io("http://localhost:3001")
+const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+export const socket = io(serverIp)
 export const SocketContext = React.createContext()

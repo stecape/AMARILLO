@@ -17,6 +17,8 @@ import {ctxData} from "../../Helpers/CtxProvider"
 import tableStyles from '../../styles/Table.module.scss'
 
 function UmList () {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const addMessage = useAddMessage()
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
@@ -80,7 +82,7 @@ function UmList () {
         visible={deletePopup.visible}
         name={deletePopup.name}
         delUm={()=>{
-          axios.post('http://localhost:3001/api/removeUm', {id: deletePopup.id})
+          axios.post(`${serverIp}/api/removeUm`, {id: deletePopup.id})
             .then(response => {
               addMessage({children: response.data.message})
             })
@@ -120,7 +122,7 @@ function UmList () {
         offset={modifyUmPopup.offset}
         modalType="full-page"
         upsertUm={(data)=>{
-          axios.post('http://localhost:3001/api/modifyUm', {...data, id: modifyUmPopup.id})
+          axios.post(`${serverIp}/api/modifyUm`, {...data, id: modifyUmPopup.id})
             .then(setModifyUmPopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -137,7 +139,7 @@ function UmList () {
         offset={0.0}
         modalType="full-page"
         upsertUm={(data)=>{
-          axios.post('http://localhost:3001/api/addUm', data)
+          axios.post(`${serverIp}/api/addUm`, data)
             .then(setCreateUmPopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{

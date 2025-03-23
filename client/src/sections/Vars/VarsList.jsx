@@ -16,6 +16,8 @@ import {ctxData} from "../../Helpers/CtxProvider"
 import tableStyles from '../../styles/Table.module.scss'
 
 function VarsList () {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
   const [modifyVarPopup, setModifyVarPopup] = useState({ visible: false, id: 0, type: 0, um: 0, logic_state: 0, comment: '', name: '', device: '' })
@@ -82,7 +84,7 @@ function VarsList () {
         visible={deletePopup.visible}
         name={deletePopup.name}
         delVar={()=>{
-          axios.post('http://localhost:3001/api/removeVar', {id: deletePopup.id})
+          axios.post(`${serverIp}/api/removeVar`, {id: deletePopup.id})
             .then(setDeletePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -102,7 +104,7 @@ function VarsList () {
         umsList={ctx.ums}
         logic_stateList={ctx.logicStates}
         upsertVar={(data)=>{
-          axios.post('http://localhost:3001/api/modifyVar', {...data, id: modifyVarPopup.id})
+          axios.post(`${serverIp}/api/modifyVar`, {...data, id: modifyVarPopup.id})
             .then(setModifyVarPopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -123,7 +125,7 @@ function VarsList () {
         umsList={ctx.ums}
         logic_stateList={ctx.logicStates}
         upsertVar={(data)=>{
-          axios.post('http://localhost:3001/api/addVar', data)
+          axios.post(`${serverIp}/api/addVar`, data)
             .then(setCreateVarPopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{

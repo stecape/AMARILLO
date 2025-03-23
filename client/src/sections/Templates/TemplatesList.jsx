@@ -16,6 +16,8 @@ import {ctxData} from "../../Helpers/CtxProvider"
 import tableStyles from '../../styles/Table.module.scss'
 
 function TemplatesList () {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
   const [modifyTemplatePopup, setModifyTemplatePopup] = useState({ visible: false, id: 0, name: '' })
@@ -68,7 +70,7 @@ function TemplatesList () {
         visible={deletePopup.visible}
         name={deletePopup.name}
         delTemplate={()=>{
-          axios.post('http://localhost:3001/api/removeTemplate', {id: deletePopup.id})
+          axios.post(`${serverIp}/api/removeTemplate`, {id: deletePopup.id})
             .then(setDeletePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -80,7 +82,7 @@ function TemplatesList () {
         name={modifyTemplatePopup.name}
         modalType="full-page"
         upsertTemplate={(data)=>{
-          axios.post('http://localhost:3001/api/modifyTemplate', {...data, id: modifyTemplatePopup.id})
+          axios.post(`${serverIp}/api/modifyTemplate`, {...data, id: modifyTemplatePopup.id})
             .then(setModifyTemplatePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
@@ -93,7 +95,7 @@ function TemplatesList () {
         name=""
         modalType="full-page"
         upsertTemplate={(data)=>{
-          axios.post('http://localhost:3001/api/addTemplate', data)
+          axios.post(`${serverIp}/api/addTemplate`, data)
             .then(setCreateTemplatePopup((prevState) => ({ ...prevState, visible: false })))
         }}
         cancelCommand={()=>{
