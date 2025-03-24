@@ -1,0 +1,68 @@
+.bargraph {
+  margin-top: 16px;
+  position: relative;
+  width: 100%;
+  height: 10px;
+}
+
+.bar {
+  position: relative;
+  background-color: var(--rmd-theme-background);
+  height: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.set {
+  padding: 16px 16px 32px 16px;
+}
+
+.title {
+  margin-bottom: 16px;
+}
+
+.setpoint {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: var(--rmd-theme-primary);
+}
+
+.outputField {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start; /* Allinea gli elementi a destra */
+  text-align: left;
+  gap: 0.5rem;
+}
+
+.value {
+  font-size: 1.5rem;
+  color: var(--rmd-theme-primary);
+}
+
+.unit {
+  font-size: 0.8rem;
+  color: var(--rmd-theme-primary);
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(rmd-typography--secondary);
+}
+
+.min,
+.max,
+.zero {
+  position: relative;
+}
+
+.zero {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}

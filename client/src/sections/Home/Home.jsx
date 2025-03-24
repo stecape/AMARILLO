@@ -1,11 +1,9 @@
 import { useState, useContext } from "react"
 import { Grid, GridCell } from '@react-md/utils'
-import { Button } from "@react-md/button"
 import { DropdownMenu, MenuItem } from "@react-md/menu"
 import { ctxData } from "../../Helpers/CtxProvider"
 import gridStyles from "../../styles/Grid.module.scss"
 import { TextContainer } from '@react-md/typography'
-import axios from 'axios'
 
 const basetypes = {
   Real: 'float',
@@ -23,8 +21,6 @@ const IsBaseType = (x, data, types)=> {
 }
 
 export default function Home() {
-  // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
   const ctx = useContext(ctxData)
   const [selectedDevice, setSelectedDevice] = useState(null)
   const devices = ctx.devices || []
