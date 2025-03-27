@@ -1,0 +1,50 @@
+.bargraph {
+  margin-top: 16px;
+  position: relative;
+  width: 100%;
+  height: 10px;
+}
+
+.bar {
+  position: relative;
+  background-color: rgb(33, 33, 33);
+  height: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.actBar {
+  position: absolute; /* Necessario per usare left */
+  background-color: rgb(116, 94, 47); /* Colore della barra */
+  height: 100%; /* Assicura che la barra occupi tutta l'altezza */
+  transition: width 0.3s ease, left 0.3s ease; /* Transizione fluida */
+}
+
+.setpoint {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: var(--rmd-theme-primary);
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(rmd-typography--secondary);
+}
+
+.min,
+.max,
+.zero {
+  position: relative;
+}
+
+.zero {
+  position: absolute; /* Necessario per usare left */
+  transform: translateX(-50%); /* Centra lo zero rispetto alla posizione */
+  font-size: 0.8rem;
+  color: var(--rmd-typography-secondary);
+}

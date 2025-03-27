@@ -1,16 +1,28 @@
-import { useContext } from "react";
-import { GridCell } from '@react-md/utils';
-import { Typography } from "@react-md/typography";
-import styles from "./Set.module.scss";
-import { ctxData } from "../../../Helpers/CtxProvider";
+import { useState, useContext } from "react"
+import { GridCell } from '@react-md/utils'
+import { Typography } from "@react-md/typography"
+import { Dialog, DialogContent, DialogFooter } from "@react-md/dialog"
+import { Button } from "@react-md/button"
+import { TextField } from "@react-md/form"
+import styles from "./Set.module.scss"
+import { ctxData } from "../../../Helpers/CtxProvider"
+import axios from 'axios'
+import Bar from "../Bar/Bar"
 
 
 function Set(props) {
-  const ctx = useContext(ctxData);
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
 
+  // Stato per gestire la visibilità del popup
+  const [isDialogVisible, setDialogVisible] = useState(false)
+  const [inputValue, setInputValue] = useState("")
+
+  const ctx = useContext(ctxData)
+  
   // Controlla se ctx.controls esiste
   if (ctx.controls === undefined || Object.keys(ctx.controls).length === 0) {
-    return null; // Non renderizzare nulla se ctx.controls non esiste
+    return null // Non renderizzare nulla se ctx.controls non esiste
   }
 
   // Recupera il nome del dispositivo
@@ -20,61 +32,102 @@ function Set(props) {
   //We need to retrieve the subcontrols to fully describe the component
   const setCtrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Set)
   const limitCtrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Limit)
+
   //Retrieving all the divice information from the control and the subcontrols
   const um = ctx.ums.find(um => um.id === props.ctrl.um).metric
   const set = ctx.tags.find(t => t.id === setCtrl.fields.Value).value.value
   const max = ctx.tags.find(t => t.id === limitCtrl.fields.Max).value.value
   const min = ctx.tags.find(t => t.id === limitCtrl.fields.Min).value.value
-  
-  // Calcola la posizione della tacca del setpoint
-  const setPointPosition = ((set - min) / (max - min)) * 100
 
-    return (
-    <GridCell colSpan={12} className={styles.set}>
-      <Typography
-        id="set-title"
-        type="headline-6"
-        margin="none"
-        color="secondary"
-        className={styles.title}
-      >
-        {device} - {props.ctrl.name}
-      </Typography>
-      <div className={styles.outputField}>
+  // Funzione per aprire il popup
+  const openDialog = () => {
+    setInputValue(set) // Imposta il valore corrente come valore iniziale
+    setDialogVisible(true)
+  }
+
+  // Funzione per chiudere il popup
+  const closeDialog = () => {
+    setDialogVisible(false)
+  }
+
+  // Funzione per confermare il nuovo valore
+  const confirmValue = () => {
+    axios.post(`${serverIp}/api/mqtt/write`, { device: device, id: setCtrl.fields.InputValue, value: inputValue })
+    closeDialog()
+  }
+
+  return (
+    <>
+      <GridCell colSpan={12} className={styles.set} onClick={openDialog}>
         <Typography
-          id="set-value"
-          type="headline-5"
-          margin="none"
-          color="primary"
-          className={styles.value}
-        >
-          {set}
-        </Typography>
-        <Typography
-          id="set-unit"
-          type="subtitle-2"
+          id="set-title"
+          type="headline-6"
           margin="none"
           color="secondary"
-          className={styles.unit}
+          className={styles.title}
         >
-          {um}
+          {device} - {props.ctrl.name}
         </Typography>
-      </div>
-      <div className={styles.bargraph}>
-        <div className={styles.bar}>
-          <div
-            className={styles.setpoint}
-            style={{ left: `${setPointPosition}%` }}
+        <div className={styles.outputField}>
+          <Typography
+            id="set-value"
+            type="headline-5"
+            margin="none"
+            color="primary"
+            className={styles.value}
+          >
+            {set}
+          </Typography>
+          <Typography
+            id="set-unit"
+            type="subtitle-2"
+            margin="none"
+            color="secondary"
+            className={styles.unit}
+          >
+            {um}
+          </Typography>
+        </div>
+        <Bar set={set} min={min} max={max} />
+      </GridCell>
+
+      {/* Popup dialog */}
+      <Dialog
+        id="set-dialog"
+        visible={isDialogVisible}
+        onRequestClose={closeDialog}
+        aria-labelledby="set-dialog-title"
+      >
+        <DialogContent>
+          <Typography id="set-dialog-title" type="headline-6" margin="none">
+            {device} - {props.ctrl.name}
+          </Typography>
+          <TextField
+            id="set-input"
+            label="Set value"
+            type="number"
+            value={inputValue}
+            onChange={(e) => setInputValue(Number(e.target.value) || 0)}
+            min={min}
+            max={max}
+            className={styles.dialogInput}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                confirmValue(); // Conferma il valore quando viene premuto Enter
+              }
+            }}
           />
-        </div>
-        <div className={styles.labels}>
-          <span className={styles.min}>{min}</span>
-          {min < 0 && max > 0 && <span className={styles.zero}>0</span>}
-          <span className={styles.max}>{max}</span>
-        </div>
-      </div>
-    </GridCell>
-  );
+          <Bar set={inputValue} min={min} max={max} />
+        </DialogContent>
+        <DialogFooter>
+          <Button onClick={closeDialog}>Cancel</Button>
+          <Button onClick={confirmValue} theme="primary">
+            Set
+          </Button>
+        </DialogFooter>
+      </Dialog>
+    </>
+  )
 }
 
-export default Set;
+export default Set
