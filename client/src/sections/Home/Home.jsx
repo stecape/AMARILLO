@@ -95,10 +95,12 @@ export default function Home() {
                   }
                   {`\n} _HMI;`}
                   {`\nextern _HMI HMI;`}
+                  {`\nextern _HMI PLC;`}
                   {'\n'}
                   {`\nextern int id[${structs.tagId.length}];`}
                   {`\nextern int type[${structs.tagType.length}];`}
-                  {`\nextern void *pointer[${structs.tagPointer.length}];\n`}
+                  {`\nextern void *HMI_pointer[${structs.tagPointer.length}];`}
+                  {`\nextern void *PLC_pointer[${structs.tagPointer.length}];\n`}
                   {'\n#endif\n'}
                 </pre>
               </TextContainer>
@@ -136,9 +138,40 @@ export default function Home() {
                 }
                 {'\n};'}
                 {'\n'}
+                {'\n_HMI PLC = {'}
+                {
+                  structs.vars.map(v => {
+                    //le tag da inizializzare sono quelle la cui var è un tipo base oppure quelle il cui field type un tipo base (tagIsBaseType(t, ctx))
+                    let initTags = ctx.tags.filter(t => (t.var === v.id && t.type_field !== null && IsBaseType(t.type_field, ctx.fields, ctx.types).result) || (t.var === v.id && IsBaseType(v.id, ctx.vars, ctx.types).result))
+
+                    let inits = initTags.map(t => {
+                      let type = t.type_field !== null ? IsBaseType(t.type_field, ctx.fields, ctx.types).type : IsBaseType(v.id, ctx.vars, ctx.types).type
+
+                      switch(ctx.types.find(t => t.id === type).name){
+                        case 'Real':
+                          return `${"." + t.name.split('.').slice(1).join('.')} = 0,`
+                        case 'Int':
+                          return `${"." + t.name.split('.').slice(1).join('.')} = 0,`
+                        case 'TimeStamp':
+                          return `${"." + t.name.split('.').slice(1).join('.')} = 0,`
+                        case 'Bool':
+                          return `${"." + t.name.split('.').slice(1).join('.')} = false,`
+                        case 'String':
+                          return `${"." + t.name.split('.').slice(1).join('.')} = '',`
+                        default:
+                          return ''
+                      }
+                    })
+                    return (`\n\t.${v.name} = {\n${inits.map(e => `\t\t${e}\n`).join("")}\t},`)
+                  })
+                }
+                {'\n};'}
+                {'\n'}
+                {'\n'}
                 {`\nint id[${structs.tagId.length}] = {\n\t${structs.tagId.join(`,\n\t`)}\n};\n`}
                 {`\nint type[${structs.tagType.length}] = {\n\t${structs.tagType.join(`,\n\t`)}\n};\n`}
-                {`\nvoid *pointer[${structs.tagPointer.length}] = {\n\t${structs.tagPointer.join(`,\n\t`)}\n};\n`}
+                {`\nvoid *HMI_pointer[${structs.tagPointer.length}] = {\n\t${structs.tagPointer.join(`,\n\t`)}\n};\n`}
+                {`\nvoid *PLC_pointer[${structs.tagPointer.length}] = {\n\t${structs.tagPointer.join(`,\n\t`)}\n};\n`.replaceAll('&HMI', '&PLC')}
                 </pre>
               </TextContainer>
             </GridCell>

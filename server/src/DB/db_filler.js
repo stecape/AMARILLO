@@ -232,28 +232,34 @@ export default function (client) {
 
     INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (1, 'InputValue', 1, 7, '') ON CONFLICT (name, parent_type) DO NOTHING;
     INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (2, 'Value', 1, 7, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (3, 'Value', 1, 8, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (4, 'Min', 1, 9, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (5, 'Max', 1, 9, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (6, 'Set', 7, 10, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (7, 'Limit', 9, 10, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (8, 'Act', 8, 11, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (9, 'Limit', 9, 11, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (10, 'Set', 7, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (11, 'Act', 8, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (12, 'Limit', 9, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (13, 'Command', 3, 13, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (14, 'Status', 3, 13, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (15, 'Status', 3, 14, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (16, 'Status', 3, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (17, 'Reaction', 3, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
-    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (18, 'Ts', 6, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (3, 'HMIValue', 1, 8, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (4, 'Value', 1, 8, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (5, 'Min', 1, 9, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (6, 'Max', 1, 9, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (7, 'Set', 7, 10, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (8, 'Limit', 9, 10, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (9, 'Decimals', 3, 10, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (10, 'Act', 8, 11, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (11, 'Limit', 9, 11, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (12, 'Decimals', 3, 11, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (13, 'Set', 7, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (14, 'Act', 8, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (15, 'Limit', 9, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (16, 'Decimals', 3, 12, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (17, 'Command', 3, 13, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (18, 'Status', 3, 13, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (19, 'Status', 3, 14, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (20, 'Status', 3, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (21, 'Reaction', 3, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (22, 'Ts', 6, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
     
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (1, 'm_ft', 'm', 'ft', 3.28084, 0) ON CONFLICT (name) DO NOTHING;
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (2, '°C_°F', '°C', '°F', 1.8, 32) ON CONFLICT (name) DO NOTHING;
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (3, 'Bar_psi', 'Bar', 'psi', 14.5038, 0) ON CONFLICT (name) DO NOTHING;
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (4, 'W', 'W', 'W', 1.0, 0) ON CONFLICT (name) DO NOTHING;
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (5, '%', '%', '%', 1.0, 0) ON CONFLICT (name) DO NOTHING;
+    INSERT INTO "LogicState"(id, name, value) VALUES (1, 'OFF_ON', '{OFF,ON,"","","","","",""}') ON CONFLICT (name) DO NOTHING;
+
 
     -- triggers function
     -- FUNCTION: public.return_data()
