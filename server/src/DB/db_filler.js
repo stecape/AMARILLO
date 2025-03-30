@@ -40,7 +40,8 @@ export default function (client) {
     (
       id SERIAL PRIMARY KEY,
       name text COLLATE pg_catalog."default" NOT NULL,
-      status integer NOT NULL
+      status integer NOT NULL,
+      utc_offset bigint NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS public."Var"

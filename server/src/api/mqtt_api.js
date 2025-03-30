@@ -74,6 +74,8 @@ export default function (app, pool) {
       mqttClient.publish(`/command/${device}`, JSON.stringify({id: 0, value: 2}))
       //request the Ping to get the status of the device
       mqttClient.publish(`/command/${device}`, JSON.stringify({id: 0, value: 3}))
+      //request the actual device time to store the shifting from the server in the database
+      mqttClient.publish(`/command/${device}`, JSON.stringify({id: 0, value: 5}))
     })
     //ask for a refresh of the HMI values with the payload {id: 0, value: 2} to all the devices in the table "Device"
 
@@ -157,9 +159,11 @@ export default function (app, pool) {
           await pool.query(updateQuery, [data.deviceId]);
           console.log(`Device ${data.deviceId} status updated to 1`);
   
-          // Publish the command to the device
-          mqttClient.publish(`/command/${data.deviceId}`, JSON.stringify({ id: 0, value: 2 }));
-          console.log(`Published to /command/${data.deviceId} with payload {id: 0, value: 2}`);
+          // Publish the command to get the HMI values
+          await mqttClient.publish(`/command/${data.deviceId}`, JSON.stringify({ id: 0, value: 2 }));
+          // Publish the command to get the device time
+          await mqttClient.publish(`/command/${data.deviceId}`, JSON.stringify({ id: 0, value: 5 }));
+          console.log(`Published to /command/${data.deviceId} with payload {id: 0, value: 2} and {id: 0, value: 5}`);
         } catch (err) {
           console.error(`Failed to update status for device ${data.deviceId}:`, err);
         }
@@ -185,6 +189,16 @@ export default function (app, pool) {
                 console.log(`Device ${data.deviceId} status updated to 1`);
               } catch (err) {
                 console.error(`Failed to update status for device ${data.deviceId}:`, err);
+              }
+            } else if (data.value == 5) {
+              // Update the time shifting of the device relative to server utc in the "Device" table
+              const updateQuery = `UPDATE "Device" SET utc_offset = $1 WHERE name = $2`;
+              try {
+                const serverTime = Date.now(); // Current server UTC timestamp in milliseconds
+                const timeDifference = serverTime-data.utc_offset; // Calculate the time difference
+                await pool.query(updateQuery, [timeDifference, data.deviceId]);
+              } catch (err) {
+                console.error(`Failed to update time for device ${data.deviceId}:`, err);
               }
             }
           } else {

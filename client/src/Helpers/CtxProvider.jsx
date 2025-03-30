@@ -47,7 +47,7 @@ export const CtxProvider = ({ children }) => {
             axios.post(`${serverIp}/api/getAll`, { table: "Tag", fields: ['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
             axios.post(`${serverIp}/api/getAll`, { table: "Device", fields: ['id', 'name', 'status'] }),
             axios.post(`${serverIp}/api/getAllControls`),
-            axios.post(`${serverIp}/api/getBackendStatus`)
+            axios.post(`${serverIp}/api/getBackendStatus`),
           ];
       
           const responses = await Promise.all(requests);
@@ -70,7 +70,7 @@ export const CtxProvider = ({ children }) => {
           setTags(responses[5].data.result.map((val) => ({ id: val[0], name: val[1], var: val[2], parent_tag: val[3], type_field: val[4], um: val[5], logic_state: val[6], comment: val[7], value: val[8] })));
           addMessage({ children: responses[5].data.message });
       
-          setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1], status: val[2] })));
+          setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1], status: val[2], utc_offset: val[3] })));
           addMessage({ children: responses[6].data.message });
       
           setControls(responses[7].data.result);
