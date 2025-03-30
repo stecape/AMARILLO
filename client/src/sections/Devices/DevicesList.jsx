@@ -31,6 +31,7 @@ function DevicesList () {
           <TableHeader>
             <TableRow>
               <TableCell hAlign="left" grow >Name</TableCell>
+              <TableCell hAlign="center">UTC offset</TableCell>
               <TableCell hAlign="center">Status</TableCell>
               <TableCell hAlign="center">Actions</TableCell>
             </TableRow>
@@ -42,6 +43,7 @@ function DevicesList () {
                     key={item.id}
                   >
                     <TableCell className={tableStyles.cell} hAlign="left">{item.name}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="center">{item.utc_offset}</TableCell>
                     <TableCell className={tableStyles.cell} hAlign="center">{item.status === 0 || item.status == null ? "Offline" : "Online"}</TableCell>
                     <TableCell className={tableStyles.cell}>
                       <Button
