@@ -163,7 +163,6 @@ export default function (app, pool) {
           await mqttClient.publish(`/command/${data.deviceId}`, JSON.stringify({ id: 0, value: 2 }));
           // Publish the command to get the device time
           await mqttClient.publish(`/command/${data.deviceId}`, JSON.stringify({ id: 0, value: 5 }));
-          console.log(`Published to /command/${data.deviceId} with payload {id: 0, value: 2} and {id: 0, value: 5}`);
         } catch (err) {
           console.error(`Failed to update status for device ${data.deviceId}:`, err);
         }

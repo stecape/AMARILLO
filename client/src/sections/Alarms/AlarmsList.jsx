@@ -37,8 +37,6 @@ function AlarmsList () {
     alarm.Reaction = alarmVarFields.find(a => a.type_field===alarmReactionFieldId)?.value.value !== undefined ? alarmVarFields.find(a => a.type_field===alarmReactionFieldId).value.value : ""
     let ts = alarmVarFields.find(a => a.type_field===alarmTsFieldId)
     let utc_offset = ctx.devices.find(d => d.id === alarmVar.device).utc_offset
-    console.log("UTC Offset:", utc_offset)
-    console.log("Alarm Timestamp:", ts.value.value)
     if (ts !== undefined && ts.value !== undefined && ts.value !== null) {
       const date = new Date(ts.value.value + utc_offset); // Converti il timestamp in millisecondi
       alarm.Ts = date.toLocaleString()
