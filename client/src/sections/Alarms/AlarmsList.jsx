@@ -60,7 +60,14 @@ function AlarmsList () {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {alarms.map((alarm) => {
+            {alarms
+            .filter((alarm) => alarm.Status !== 0) // Filtra gli allarmi con Status diverso da 0
+            .sort((a, b) => {
+              const dateA = new Date(a.Ts).getTime()
+              const dateB = new Date(b.Ts).getTime()
+              return dateB - dateA // Ordina in ordine decrescente
+            })
+            .map((alarm) => {
               return (
                 <TableRow key={alarm.Name}>
                   <TableCell className={tableStyles.cell} hAlign="left">{alarm.Ts}</TableCell>
