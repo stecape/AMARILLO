@@ -78,7 +78,8 @@ export default function Home() {
                 <pre>
                   {'#ifndef HMI_h\n'}
                   {'#define HMI_h\n'}
-                  {'\n#include "time.h"\n'}
+                  {'\n#include "time.h"'}
+                  {'\n#include <stdbool.h>\n'}
                   {'\n#define REAL 1'}
                   {'\n#define INT 3'}
                   {'\n#define BOOL 4'}

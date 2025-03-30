@@ -59,7 +59,7 @@ function TagsList () {
                   <TableCell className={tableStyles.cell} hAlign="center">{umItem !== undefined && umItem.name}</TableCell>
                   <TableCell className={tableStyles.cell} hAlign="center">{logic_stateItem !== undefined && logic_stateItem.name}</TableCell>
                   <TableCell className={tableStyles.cell} hAlign="left">{item.comment !== undefined && item.comment !== null && item.comment}</TableCell>
-                  <TableCell className={tableStyles.cell} hAlign="center">{item.value !== null && item.value.value}</TableCell>
+                  <TableCell className={tableStyles.cell} hAlign="center">{item.value !== null && item.value.value.toString()}</TableCell>
                 <TableCell />
                 </TableRow>
               )

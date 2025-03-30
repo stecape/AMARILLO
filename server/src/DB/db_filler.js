@@ -252,6 +252,7 @@ export default function (client) {
     INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (20, 'Status', 3, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
     INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (21, 'Reaction', 3, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
     INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (22, 'Ts', 6, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
+    INSERT INTO "Field"(id, name, type, parent_type, comment) VALUES (23, 'Q', 4, 15, '') ON CONFLICT (name, parent_type) DO NOTHING;
     
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (1, 'm_ft', 'm', 'ft', 3.28084, 0) ON CONFLICT (name) DO NOTHING;
     INSERT INTO "um"(id, name, metric, imperial, gain, "offset") VALUES (2, '°C_°F', '°C', '°F', 1.8, 32) ON CONFLICT (name) DO NOTHING;

@@ -118,6 +118,27 @@ export default function (app, pool) {
     res.json({result: {device: req.body.device, id:req.body.id, value:req.body.value}, message: "Message sent"})
   })
 
+/*
+  Acknowledge the alarms on each device
+  Type:   POST
+  Route:  '/api/mqtt/alarms_ack'
+  Body:   {
+            id: 0,
+            value: 4
+          }
+  Res:    200
+  */
+  app.post('/api/mqtt/alarms_ack', (req, res) => {
+    devices.forEach(device => {
+      mqttClient.publish(`/command/${device}`, JSON.stringify({id: 0, value: 4}))
+    })
+    res.json({result: {status: "ack done"}, message: "Message sent"})
+  })
+
+
+
+
+
   /*
   {
   "id":615,
@@ -174,7 +195,7 @@ export default function (app, pool) {
               text: queryString,
               rowMode: 'array',
             });
-            //SCOMMENTAconsole.log(`Updated tag ${data.id} with value ${data.value}`);
+            //console.log(`Updated tag ${data.id} with value ${data.value}`);
           } 
         } else {
           console.error("Invalid data format received:", data);
