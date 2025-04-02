@@ -64,102 +64,139 @@ export default function Home() {
   // Funzione per generare il contenuto del primo TextContainer (HMI)
   const generate_HMI_h_Content = () => {
     return `
-  #ifndef HMI_h
-  #define HMI_h
-  
-  #include "time.h"
-  #include <stdbool.h>
-  
-  #define REAL 1
-  #define INT 3
-  #define BOOL 4
-  #define STRING 5
-  #define TIMESTAMP 6
-  
-  ${structs.types
-    .map(
-      (t) =>
-        `\ntypedef struct {${t.fields
-          .map((f) => `\n\t${f.type} ${f.name}`)
-          .join(";")};\n} ${t.name};\n`
-    )
-    .join("")}
-  
-  typedef struct {${structs.vars
-        .map((v) => `\n\t${v.type} ${v.name};`)
-        .join("")}
-  } _HMI;
-  
-  extern _HMI HMI;
-  extern _HMI PLC;
-  
-  extern int id[${structs.tagId.length}];
-  extern int type[${structs.tagType.length}];
-  extern void *HMI_pointer[${structs.tagPointer.length}];
-  extern void *PLC_pointer[${structs.tagPointer.length}];
-  
-  #endif
-    `;
+#ifndef HMI_h
+#define HMI_h
+
+#include "time.h"
+#include <stdbool.h>
+
+#define REAL 1
+#define INT 3
+#define BOOL 4
+#define STRING 5
+#define TIMESTAMP 6
+
+${structs.types
+  .map(
+    (t) =>
+      `\ntypedef struct {${t.fields
+        .map((f) => `\n\t${f.type} ${f.name}`)
+        .join(";")};\n} ${t.name};\n`
+  )
+  .join("")}
+
+typedef struct {${structs.vars
+      .map((v) => `\n\t${v.type} ${v.name};`)
+      .join("")}
+} _HMI;
+
+extern _HMI HMI;
+extern _HMI PLC;
+
+extern int id[${structs.tagId.length}];
+extern int type[${structs.tagType.length}];
+extern void *HMI_pointer[${structs.tagPointer.length}];
+extern void *PLC_pointer[${structs.tagPointer.length}];
+
+#endif
+  `;
   };
   
   // Funzione per generare il contenuto del secondo TextContainer (PLC)
   const generate_HMI_c_Content = () => {
     return `
-  #include "HMI.h"
-  
-  _HMI HMI = {
-  ${structs.vars
-    .map((v) => {
-      let initTags = ctx.tags.filter(
-        (t) =>
-          (t.var === v.id &&
-            t.type_field !== null &&
-            IsBaseType(t.type_field, ctx.fields, ctx.types).result) ||
-          (t.var === v.id && IsBaseType(v.id, ctx.vars, ctx.types).result)
-      );
-  
-      let inits = initTags.map((t) => {
-        let type =
-          t.type_field !== null
-            ? IsBaseType(t.type_field, ctx.fields, ctx.types).type
-            : IsBaseType(v.id, ctx.vars, ctx.types).type;
-  
-        switch (ctx.types.find((t) => t.id === type).name) {
-          case "Real":
-            return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
-          case "Int":
-            return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
-          case "TimeStamp":
-            return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
-          case "Bool":
-            return `${"." + t.name.split(".").slice(1).join(".")} = false,`;
-          case "String":
-            return `${"." + t.name.split(".").slice(1).join(".")} = '',`;
-          default:
-            return "";
-        }
-      });
-      return `\n\t.${v.name} = {\n${inits.map((e) => `\t\t${e}\n`).join("")}\t},`;
-    })
-    .join("")}
-  };
-  
-  int id[${structs.tagId.length}] = {
-  \t${structs.tagId.join(",\n\t")}
-  };
-  
-  int type[${structs.tagType.length}] = {
-  \t${structs.tagType.join(",\n\t")}
-  };
-  
-  void *HMI_pointer[${structs.tagPointer.length}] = {
-  \t${structs.tagPointer.join(",\n\t")}
-  };
-  
-  void *PLC_pointer[${structs.tagPointer.length}] = {
-  \t${structs.tagPointer.join(",\n\t")}
-  };
-    `;
+#include "HMI.h"
+
+_HMI HMI = {
+${structs.vars
+  .map((v) => {
+    let initTags = ctx.tags.filter(
+      (t) =>
+        (t.var === v.id &&
+          t.type_field !== null &&
+          IsBaseType(t.type_field, ctx.fields, ctx.types).result) ||
+        (t.var === v.id && IsBaseType(v.id, ctx.vars, ctx.types).result)
+    );
+
+    let inits = initTags.map((t) => {
+      let type =
+        t.type_field !== null
+          ? IsBaseType(t.type_field, ctx.fields, ctx.types).type
+          : IsBaseType(v.id, ctx.vars, ctx.types).type;
+
+      switch (ctx.types.find((t) => t.id === type).name) {
+        case "Real":
+          return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
+        case "Int":
+          return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
+        case "TimeStamp":
+          return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
+        case "Bool":
+          return `${"." + t.name.split(".").slice(1).join(".")} = false,`;
+        case "String":
+          return `${"." + t.name.split(".").slice(1).join(".")} = '',`;
+        default:
+          return "";
+      }
+    });
+    return `\n\t.${v.name} = {\n${inits.map((e) => `\t\t${e}\n`).join("")}\t},`;
+  })
+  .join("")}
+};
+
+_HMI PLC = {
+${structs.vars
+  .map((v) => {
+    let initTags = ctx.tags.filter(
+      (t) =>
+        (t.var === v.id &&
+          t.type_field !== null &&
+          IsBaseType(t.type_field, ctx.fields, ctx.types).result) ||
+        (t.var === v.id && IsBaseType(v.id, ctx.vars, ctx.types).result)
+    );
+
+    let inits = initTags.map((t) => {
+      let type =
+        t.type_field !== null
+          ? IsBaseType(t.type_field, ctx.fields, ctx.types).type
+          : IsBaseType(v.id, ctx.vars, ctx.types).type;
+
+      switch (ctx.types.find((t) => t.id === type).name) {
+        case "Real":
+          return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
+        case "Int":
+          return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
+        case "TimeStamp":
+          return `${"." + t.name.split(".").slice(1).join(".")} = 0,`;
+        case "Bool":
+          return `${"." + t.name.split(".").slice(1).join(".")} = false,`;
+        case "String":
+          return `${"." + t.name.split(".").slice(1).join(".")} = '',`;
+        default:
+          return "";
+      }
+    });
+    return `\n\t.${v.name} = {\n${inits.map((e) => `\t\t${e}\n`).join("")}\t},`;
+  })
+  .join("")}
+};
+
+int id[${structs.tagId.length}] = {
+\t${structs.tagId.join(",\n\t")}
+};
+
+int type[${structs.tagType.length}] = {
+\t${structs.tagType.join(",\n\t")}
+};
+
+void *HMI_pointer[${structs.tagPointer.length}] = {
+\t${structs.tagPointer.join(",\n\t")}
+};
+
+void *PLC_pointer[${structs.tagPointer.length}] = {
+\t${structs.tagPointer.join(",\n\t")}
+};
+  `;
   };
   
   // Funzione per copiare il contenuto
