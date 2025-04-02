@@ -1,0 +1,21 @@
+.textContainer {
+  position: relative; /* Necessario per posizionare il bottone assolutamente */
+  padding: 1rem;
+  border-radius: 4px;
+  margin-left: "1em"
+}
+
+.floatingButton {
+  position: absolute;
+  top: 2rem;
+  right: 0.5rem;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.floatingButton:hover {
+  background-color: var(--rmd-theme-background);
+}

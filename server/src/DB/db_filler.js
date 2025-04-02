@@ -41,7 +41,7 @@ export default function (client) {
       id SERIAL PRIMARY KEY,
       name text COLLATE pg_catalog."default" NOT NULL,
       status integer NOT NULL,
-      utc_offset bigint NOT NULL
+      utc_offset bigint NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS public."Var"
@@ -194,26 +194,31 @@ export default function (client) {
       DROP CONSTRAINT IF EXISTS unique_Device_id_name,
       ADD CONSTRAINT unique_Device_id_name UNIQUE (id, name);
 
-  
-    ALTER SEQUENCE IF EXISTS public."Type_id_seq"
-      START 100;
-    --SELECT setval('public."Type_id_seq"', 99, true);
 
-    ALTER SEQUENCE IF EXISTS public."Field_id_seq"
-      START 100;
-    --SELECT setval('public."Field_id_seq"', 99, true);
+    -- Aggiorna la sequenza solo se l'id massimo è inferiore a 99
+    DO $$
+    BEGIN
+      IF (SELECT COALESCE(MAX(id), 0) FROM public."Type") < 99 THEN
+        PERFORM setval('public."Type_id_seq"', 100);
+      END IF;
 
-    ALTER SEQUENCE IF EXISTS public."um_id_seq"
-      START 100;
-    --SELECT setval('public."um_id_seq"', 99, true);
+      IF (SELECT COALESCE(MAX(id), 0) FROM public."Field") < 99 THEN
+        PERFORM setval('public."Field_id_seq"', 100);
+      END IF;
 
-    ALTER SEQUENCE IF EXISTS public."LogicState_id_seq"
-      START 100;
-    --SELECT setval('public."LogicState_id_seq"', 99, true);
+      IF (SELECT COALESCE(MAX(id), 0) FROM public."um") < 99 THEN
+        PERFORM setval('public."um_id_seq"', 100);
+      END IF;
 
-    ALTER SEQUENCE IF EXISTS public."Device_id_seq"
-      START 100;
-    --SELECT setval('public."Device_id_seq"', 99, true);
+      IF (SELECT COALESCE(MAX(id), 0) FROM public."LogicState") < 99 THEN
+        PERFORM setval('public."LogicState_id_seq"', 100);
+      END IF;
+
+      IF (SELECT COALESCE(MAX(id), 0) FROM public."Device") < 99 THEN
+        PERFORM setval('public."Device_id_seq"', 100);
+      END IF;
+    END $$;
+
 
     INSERT INTO "Type"(id,name,base_type, locked) VALUES (1, 'Real', true, true) ON CONFLICT (name) DO NOTHING;
     --INSERT INTO "Type"(id,name,base_type, locked) VALUES (2, 'Text', true, true) ON CONFLICT (name) DO NOTHING; !!!!!!SPARE!!!!!!

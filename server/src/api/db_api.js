@@ -31,7 +31,7 @@ export default function (app, pool) {
   const getFields = () => {
     return new Promise((resolve, reject) => {
       //Retreiving the fieldsList
-      queryString = `SELECT * from "Field"`
+      var queryString = `SELECT * from "Field"`
       pool.query({
         text: queryString,
         rowMode: 'array'
@@ -44,13 +44,20 @@ export default function (app, pool) {
   const deleteTags = () => {
     return new Promise((resolve, reject) => {
       //Retreiving the fieldsList
-      queryString = `TRUNCATE "Tag"`
+      var queryString = `TRUNCATE "Tag"`
+      console.log("Deleting tags: ", queryString)
       pool.query({
         text: queryString,
         rowMode: 'array'
       })
-      .then(() => resolve())
-      .catch(error => reject(error))    
+      .then(() => {
+        console.log("Tags deleted")
+        resolve()
+      })
+      .catch(error => {
+        console.log("Error during tags deletion", error)
+        reject(error)
+      })    
     })
   }
 
@@ -73,6 +80,7 @@ export default function (app, pool) {
   */
   app.post('/api/exec', (req, res) => {
     var queryString=req.body.query
+    console.log(queryString)
     pool.query({
       text: queryString,
       rowMode: 'array'

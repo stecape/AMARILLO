@@ -35,9 +35,10 @@ function SetAct(props) {
   const limitCtrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Limit)
 
   //Retrieving all the divice information from the control and the subcontrols
+  const decimals = ctx.tags.find(t => t.id === props.ctrl.fields.Decimals).value.value
   const um = ctx.ums.find(um => um.id === props.ctrl.um).metric
   const set = ctx.tags.find(t => t.id === setCtrl.fields.Value).value.value
-  const act = ctx.tags.find(t => t.id === actCtrl.fields.HMIValue).value.value
+  const act = parseFloat(ctx.tags.find(t => t.id === actCtrl.fields.HMIValue).value.value.toFixed(decimals))
   const max = ctx.tags.find(t => t.id === limitCtrl.fields.Max).value.value
   const min = ctx.tags.find(t => t.id === limitCtrl.fields.Min).value.value
 

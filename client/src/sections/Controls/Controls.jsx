@@ -9,6 +9,7 @@ import SetAct from "../../HMI/Components/SetAct/SetAct"
 
 function Controls() {
   const ctx = useContext(ctxData)
+  console.log(ctx)
   return (
     <>
       {ctx.init && (
