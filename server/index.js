@@ -22,7 +22,9 @@ const startApp = () => {
       mqtt_api(expressApp, pool)
       controls_api(expressApp, pool)
     })
-    .catch(() => console.error('Index: Error connecting to the database'))
+    .catch(() => {
+      console.error('Index: Error connecting to the database')
+    })
 }
 
 startApp()
