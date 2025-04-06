@@ -194,7 +194,7 @@ void *HMI_pointer[${structs.tagPointer.length}] = {
 };
 
 void *PLC_pointer[${structs.tagPointer.length}] = {
-\t${structs.tagPointer.join(",\n\t")}
+\t${structs.tagPointer.map(pointer => pointer.replace("&HMI", "&PLC")).join(",\n\t")}
 };
   `;
   };
