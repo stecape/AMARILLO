@@ -113,7 +113,7 @@ function FieldsList () {
               <TableCell hAlign="left" grow >Name</TableCell>
               <TableCell hAlign="center">Type</TableCell>
               <TableCell hAlign="center">um</TableCell>
-              <TableCell hAlign="center">LogicState</TableCell>
+              <TableCell hAlign="center">Logic State</TableCell>
               <TableCell hAlign="left">Comment</TableCell>
               <TableCell hAlign="center">Actions</TableCell>
             </TableRow>

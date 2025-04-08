@@ -18,6 +18,7 @@ export default function (client) {
     (
       id SERIAL PRIMARY KEY,
       name text COLLATE pg_catalog."default" NOT NULL,
+      device integer NOT NULL,
       var integer NOT NULL,
       parent_tag integer,
       type_field integer,
@@ -40,6 +41,7 @@ export default function (client) {
     (
       id SERIAL PRIMARY KEY,
       name text COLLATE pg_catalog."default" NOT NULL,
+      template integer NOT NULL,
       status integer NOT NULL,
       utc_offset bigint NOT NULL DEFAULT 0
     );
@@ -49,7 +51,7 @@ export default function (client) {
       id SERIAL PRIMARY KEY,
       type integer NOT NULL,
       name text COLLATE pg_catalog."default" NOT NULL,
-      device integer NOT NULL,
+      template integer NOT NULL,
       um integer,
       logic_state integer,
       comment text COLLATE pg_catalog."default"
@@ -72,6 +74,13 @@ export default function (client) {
         id SERIAL PRIMARY KEY,
         name text COLLATE pg_catalog."default" NOT NULL,
         value text[] COLLATE pg_catalog."default" NOT NULL
+    );
+    
+
+    CREATE TABLE IF NOT EXISTS public."Template"
+    (
+        id SERIAL PRIMARY KEY,
+        name text COLLATE pg_catalog."default" NOT NULL
     );
 
     CREATE UNIQUE INDEX ui_field_name_and_parent_type 
@@ -106,44 +115,50 @@ export default function (client) {
       ADD CONSTRAINT unique_field_name_and_parent_type UNIQUE USING INDEX ui_field_name_and_parent_type;
 
 
-    CREATE UNIQUE INDEX ui_parent_tag_and_type_field 
-      ON public."Tag" (parent_tag, type_field);
+    CREATE UNIQUE INDEX ui_device_parent_tag_and_type_field 
+      ON public."Tag" (device, parent_tag, type_field);
     
     ALTER TABLE IF EXISTS public."Tag"
       DROP CONSTRAINT IF EXISTS unique_tag_name,
       ADD CONSTRAINT unique_tag_name UNIQUE (name),
-      DROP CONSTRAINT IF EXISTS parent_tag_id,
-      ADD CONSTRAINT parent_tag_id FOREIGN KEY (parent_tag)
+      DROP CONSTRAINT IF EXISTS tag_parent_tag_id,
+      ADD CONSTRAINT tag_parent_tag_id FOREIGN KEY (parent_tag)
         REFERENCES public."Tag" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID,
-      DROP CONSTRAINT IF EXISTS var_id,
-      ADD CONSTRAINT var_id FOREIGN KEY (var)
+      DROP CONSTRAINT IF EXISTS tag_device_id,
+      ADD CONSTRAINT tag_device_id FOREIGN KEY (device)
+        REFERENCES public."Device" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID,
+      DROP CONSTRAINT IF EXISTS tag_var_id,
+      ADD CONSTRAINT tag_var_id FOREIGN KEY (var)
         REFERENCES public."Var" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
         NOT VALID,
-      DROP CONSTRAINT IF EXISTS type_field_id,
-      ADD CONSTRAINT type_field_id FOREIGN KEY (type_field)
+      DROP CONSTRAINT IF EXISTS tag_type_field_id,
+      ADD CONSTRAINT tag_type_field_id FOREIGN KEY (type_field)
         REFERENCES public."Field" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID,
-      DROP CONSTRAINT IF EXISTS field_um_id,
-      ADD CONSTRAINT field_um_id FOREIGN KEY (um)
+      DROP CONSTRAINT IF EXISTS tag_um_id,
+      ADD CONSTRAINT tag_um_id FOREIGN KEY (um)
         REFERENCES public."um" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID,
-      DROP CONSTRAINT IF EXISTS field_logic_state_id,
-      ADD CONSTRAINT field_logic_state_id FOREIGN KEY (logic_state)
+      DROP CONSTRAINT IF EXISTS tag_logic_state_id,
+      ADD CONSTRAINT tag_logic_state_id FOREIGN KEY (logic_state)
         REFERENCES public."LogicState" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID,     
-      DROP CONSTRAINT IF EXISTS unique_parent_tag_and_type_field,
-      ADD CONSTRAINT unique_parent_tag_and_type_field UNIQUE USING INDEX ui_parent_tag_and_type_field;
+      DROP CONSTRAINT IF EXISTS unique_device_parent_tag_and_type_field,
+      ADD CONSTRAINT unique_device_parent_tag_and_type_field UNIQUE USING INDEX ui_device_parent_tag_and_type_field;
 
     
     ALTER TABLE IF EXISTS public."Type"
@@ -166,12 +181,11 @@ export default function (client) {
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
         NOT VALID,
-      DROP CONSTRAINT IF EXISTS var_device_id,
-      ADD CONSTRAINT var_device_id FOREIGN KEY (device)
-        REFERENCES public."Device" (id) MATCH SIMPLE
+      DROP CONSTRAINT IF EXISTS var_template_id,
+      ADD CONSTRAINT var_template_id FOREIGN KEY (template)
+        REFERENCES public."Template" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        NOT VALID,
+        ON DELETE CASCADE,
       DROP CONSTRAINT IF EXISTS var_logic_state_id,
       ADD CONSTRAINT var_logic_state_id FOREIGN KEY (logic_state)
         REFERENCES public."LogicState" (id) MATCH SIMPLE
@@ -191,8 +205,19 @@ export default function (client) {
 
 
     ALTER TABLE IF EXISTS public."Device"
-      DROP CONSTRAINT IF EXISTS unique_Device_id_name,
-      ADD CONSTRAINT unique_Device_id_name UNIQUE (id, name);
+      DROP CONSTRAINT IF EXISTS unique_device_name,
+      ADD CONSTRAINT unique_device_name UNIQUE (name),
+      DROP CONSTRAINT IF EXISTS device_template_id,
+      ADD CONSTRAINT device_template_id FOREIGN KEY (template)
+        REFERENCES public."Template" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID;
+
+
+    ALTER TABLE IF EXISTS public."Template"
+      DROP CONSTRAINT IF EXISTS unique_template_name,
+      ADD CONSTRAINT unique_template_name UNIQUE (name);
 
 
     -- Aggiorna la sequenza solo se l'id massimo è inferiore a 99

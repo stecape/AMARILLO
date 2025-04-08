@@ -20,8 +20,9 @@ export const CtxProvider = ({ children }) => {
   const [tags, setTags] = useState([])
   const [backendStatus, setBackendStatus] = useState({backendConnected: socket.connected, dbConnected: false, mqttConnected: false})
   const [init, setInit] = useState(false)
-  const [devices, setDevices] = useState([]);
-  const [controls, setControls] = useState([]); //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type
+  const [devices, setDevices] = useState([])
+  const [templates, setTemplates] = useState([])
+  const [controls, setControls] = useState([]) //array di oggetti. Ogni oggetto conterrà le tagId appartenenti ad un certo data type
   useEffect(() => {
 
     const getAllControls = async () => {
@@ -43,9 +44,10 @@ export const CtxProvider = ({ children }) => {
             axios.post(`${serverIp}/api/getAll`, { table: "Field", fields: ['id', 'name', 'type', 'parent_type', 'um', 'logic_state', 'comment'] }),
             axios.post(`${serverIp}/api/getAll`, { table: "um", fields: ['id', 'name', 'metric', 'imperial', 'gain', '"offset"'] }),
             axios.post(`${serverIp}/api/getAll`, { table: "LogicState", fields: ['id', 'name', 'value'] }),
-            axios.post(`${serverIp}/api/getAll`, { table: "Var", fields: ['id', 'device', 'name', 'type', 'um', 'logic_state', 'comment'] }),
-            axios.post(`${serverIp}/api/getAll`, { table: "Tag", fields: ['id', 'name', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
-            axios.post(`${serverIp}/api/getAll`, { table: "Device", fields: ['id', 'name', 'status'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Var", fields: ['id', 'name', 'template', 'type', 'um', 'logic_state', 'comment'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Tag", fields: ['id', 'name', 'device', 'var', 'parent_tag', 'type_field', 'um', 'logic_state', 'comment', 'value'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Device", fields: ['id', 'name', 'template', 'status', 'utc_offset'] }),
+            axios.post(`${serverIp}/api/getAll`, { table: "Template", fields: ['id', 'name'] }),
             axios.post(`${serverIp}/api/getAllControls`),
             axios.post(`${serverIp}/api/getBackendStatus`),
           ];
@@ -64,20 +66,23 @@ export const CtxProvider = ({ children }) => {
           setLogicStates(responses[3].data.result.map((val) => ({ id: val[0], name: val[1], value: val[2] })));
           addMessage({ children: responses[3].data.message });
       
-          setVars(responses[4].data.result.map((val) => ({ id: val[0], device: val[1], name: val[2], type: val[3], um: val[4], logic_state: val[5], comment: val[6] })));
+          setVars(responses[4].data.result.map((val) => ({ id: val[0], name: val[1], template: val[2], type: val[3], um: val[4], logic_state: val[5], comment: val[6] })));
           addMessage({ children: responses[4].data.message });
       
-          setTags(responses[5].data.result.map((val) => ({ id: val[0], name: val[1], var: val[2], parent_tag: val[3], type_field: val[4], um: val[5], logic_state: val[6], comment: val[7], value: val[8] })));
+          setTags(responses[5].data.result.map((val) => ({ id: val[0], name: val[1], device: val[2], var: val[3], parent_tag: val[4], type_field: val[5], um: val[6], logic_state: val[7], comment: val[8], value: val[9] })));
           addMessage({ children: responses[5].data.message });
       
-          setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1], status: val[2], utc_offset: val[3] })));
+          setDevices(responses[6].data.result.map((val) => ({ id: val[0], name: val[1], template: val[2], status: val[3], utc_offset: val[4] })));
           addMessage({ children: responses[6].data.message });
       
-          setControls(responses[7].data.result);
+          setTemplates(responses[7].data.result.map((val) => ({ id: val[0], name: val[1] })));
           addMessage({ children: responses[7].data.message });
       
-          setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, dbConnected: responses[8].data.result.dbConnected, mqttConnected: responses[8].data.result.mqttConnected }));
+          setControls(responses[8].data.result);
           addMessage({ children: responses[8].data.message });
+      
+          setBackendStatus(prevStatus => ({ ...prevStatus, backendConnected: socket.connected, dbConnected: responses[9].data.result.dbConnected, mqttConnected: responses[9].data.result.mqttConnected }));
+          addMessage({ children: responses[9].data.message });
 
           setInit(true);
       
@@ -282,6 +287,30 @@ export const CtxProvider = ({ children }) => {
           }
           break
 
+          //Devices
+          case "Template":
+            switch(value.operation){
+              case 'INSERT':
+                setDevices(prevTemplates => [...prevTemplates, value.data])
+                break
+  
+              case 'DELETE':
+                setDevices(prevTemplates => [...prevTemplates.filter(i => i.id !== value.data.id)])
+                break
+  
+              case 'TRUNCATE':
+                setDevices(prevTemplates => [...[]])
+                break
+  
+              case 'UPDATE':
+                setDevices(prevTemplates => [...prevTemplates.map(i => { return i.id === value.data.id ? value.data : i })])
+                break
+                
+              default:
+                break
+            }
+            break
+
         default:
           break
       }
@@ -362,11 +391,11 @@ export const CtxProvider = ({ children }) => {
       socket.off('mqttConnected', on_mqtt_connected)
       socket.off('mqttDisconnected', on_mqtt_disconnected)
     }
-  }, [serverIp, addMessage, init, backendStatus, logicStates, socket, types, fields, ums, vars, tags, devices, controls])
+  }, [serverIp, addMessage, init, backendStatus, logicStates, socket, types, fields, ums, vars, tags, devices, templates, controls])
 
   const value = useMemo(
-    () => ({ init, setInit, backendStatus, setBackendStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls }),
-    [init, setInit, backendStatus, setBackendStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, controls, setControls]
+    () => ({ init, setInit, backendStatus, setBackendStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, templates, setTemplates, controls, setControls }),
+    [init, setInit, backendStatus, setBackendStatus, types, setTypes, fields, setFields, ums, setUms, logicStates, setLogicStates, vars, setVars, tags, setTags, devices, setDevices, templates, setTemplates, controls, setControls]
   );
 
   return (

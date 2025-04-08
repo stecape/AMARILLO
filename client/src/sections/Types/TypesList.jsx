@@ -67,8 +67,7 @@ function TypesList () {
                         //and then it configures the context:
                         //the query list is cleared,
                         //the name of the type to edit is initialized, and so it is the type Id and the relative fields.
-                        //The context is populated also with the "all types" array, to allow the "no duplicate name" validation,
-                        //and with the types list which is included with the types that are not included in the dependencies array, 
+                        //The context is populated also with the types list which is populated with the types that are not included in the dependencies array, 
                         //to avoid circular references
                         axios.post(`${serverIp}/api/getFields`, {type: item.id})
                         .then((res) => {

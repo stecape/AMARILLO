@@ -10,20 +10,20 @@ import {
 } from '@react-md/form'
 import {ctxData} from "../../../Helpers/CtxProvider"
 
-function ModifyFieldPopup (props) {
+function ModifyVarPopup (props) {
   const ctx = useContext(ctxData)
-  const [modalState, setModalState] = useState({ visible: false, name: '', type: 0, um: 0, logic_state: 0, comment: '', fieldNameNotValid: false })
+  const [modalState, setModalState] = useState({ visible: false, name: '', modalType: props.modalType, type: 0, um: 0, logic_state: 0, comment: '', varNameNotValid: false })
 
   //Input Validation
   const InlineValidation = (value) => {
-    let pattern = /[^A-Za-z0-9\-_<> ]/g
-    setModalState((prevState) => ({ ...prevState, name: value, fieldNameNotValid: pattern.test(value) || props.fields.find(i => i.name === value && i.QRef !== props.QRef) || value === ""}))
+    let pattern = /[^A-Za-z0-9_]|^[^A-Za-z_]/
+    setModalState((prevState) => ({ ...prevState, name: value, varNameNotValid: pattern.test(value) || props.vars.find(i => i.name === value && i.QRef !== props.QRef) || value === ""}))
   }
   
   //Form Events
   const handleSubmit = (event) => {
     event.preventDefault()
-    props.updField({name: modalState.name, type: modalState.type, um: modalState.um, logic_state: modalState.logic_state, comment: modalState.comment})
+    props.updVar({name: modalState.name, type: modalState.type, um: modalState.um, logic_state: modalState.logic_state, comment: modalState.comment})
   }
   const handleReset = (event) => {
     event.preventDefault()
@@ -36,9 +36,9 @@ function ModifyFieldPopup (props) {
   
   return (
     <Dialog
-      id="modify-field-dialog"
+      id="upsert-var-dialog"
       role="alertdialog"
-      modal={modalState.modal}
+      type={modalState.modalType}
       visible={modalState.visible}
       onRequestClose={props.cancelCommand}
       aria-labelledby="dialog-title"
@@ -58,15 +58,15 @@ function ModifyFieldPopup (props) {
               id='name'
               key='name'
               type='string'
-              label="Field Name"
+              label="Var Name"
               value={modalState.name}
               onChange={(e) => InlineValidation(e.target.value)}
-              error={modalState.fieldNameNotValid}
+              error={modalState.varNameNotValid}
             />
             <Select
               id='type'
               key='type'
-              options={props.typesList.map((item) => ({
+              options={ctx.types.map((item) => ({
                 label: item.name,
                 value: item.id
               }))}
@@ -81,7 +81,8 @@ function ModifyFieldPopup (props) {
                 label: item.name,
                 value: item.id
               }))}
-              value={modalState.um !== null && modalState.um.toString()}
+              value={modalState.um !== null ? modalState.um.toString() : 0}
+              placeholder="Choose..."
               label="um"
               onChange={(value) => setModalState((prevState) => ({ ...prevState, um: Number(value)}))}
             />
@@ -92,15 +93,16 @@ function ModifyFieldPopup (props) {
                 label: item.name,
                 value: item.id
               }))}
-              value={modalState.logic_state !== null && modalState.logic_state.toString()}
-              label="Logic State"
+              value={modalState.logic_state !== null ? modalState.logic_state.toString() : 0}
+              placeholder="Choose..."
+              label="Logic state"
               onChange={(value) => setModalState((prevState) => ({ ...prevState, logic_state: Number(value)}))}
             />
             <TextField
               id='comment'
               key='comment'
               type='string'
-              label="comment"
+              label="Var Comment"
               value={modalState.comment}
               onChange={(e) => setModalState((prevState) => ({ ...prevState, comment: e.target.value}))}
             />
@@ -126,4 +128,4 @@ function ModifyFieldPopup (props) {
     </Dialog>
   )
 }
-export default ModifyFieldPopup
+export default ModifyVarPopup

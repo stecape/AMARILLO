@@ -364,11 +364,11 @@ export default function (app, pool) {
   */
 
 
-  const _GenerateTags = (varId, name, type, typesList, fieldsList, parent_tag) => {
+  const _GenerateTags = (varId, deviceId, name, type, typesList, fieldsList, parent_tag) => {
     //Iterate through the types tree until it reaches the leaves, generating the tags
     fieldsList.filter(i => i[3] === type).forEach(f => {
       var tagName = name+'.'+f[1]
-      var queryString=`INSERT INTO "Tag" (id, name, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${tagName}', ${varId}, ${parent_tag}, ${f[0]}, ${f[4] !== undefined ? f[4] : 'NULL'}, ${f[5] !== undefined ? f[5] : 'NULL'}, ${f[6] !== undefined ? `'${f[6]}'` : 'NULL'}) RETURNING "id"`
+      var queryString=`INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${tagName}', ${deviceId}, ${varId}, ${parent_tag}, ${f[0]}, ${f[4] !== undefined ? f[4] : 'NULL'}, ${f[5] !== undefined ? f[5] : 'NULL'}, ${f[6] !== undefined ? `'${f[6]}'` : 'NULL'}) RETURNING "id"`
       pool.query({
         text: queryString,
         rowMode: 'array'
@@ -385,7 +385,7 @@ export default function (app, pool) {
     })
   }
 
-  const GenerateTags = (varId, varName, varType, typesList, fieldsList, um, logic_state, comment) => {
+  const GenerateTags = (varId, deviceId, varName, varType, typesList, fieldsList, um, logic_state, comment) => {
     return new Promise((resolve, reject) => {
       //Delete old tags
       var queryString = `DELETE FROM "Tag" WHERE var = ${varId}`
@@ -395,7 +395,7 @@ export default function (app, pool) {
       })
       .then(() => {
         //Inserting the first Tag corresponding to the var
-        queryString=`INSERT INTO "Tag" (id, name, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${varName}', ${varId}, NULL,  NULL, ${um !== undefined ? um : 'NULL'}, ${logic_state !== undefined ? logic_state : 'NULL'}, ${comment !== undefined ? `'${comment}'` : 'NULL'}) RETURNING "id"`
+        queryString=`INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${varName}', ${deviceId}, ${varId}, NULL,  NULL, ${um !== undefined ? um : 'NULL'}, ${logic_state !== undefined ? logic_state : 'NULL'}, ${comment !== undefined ? `'${comment}'` : 'NULL'}) RETURNING "id"`
         pool.query({
           text: queryString,
           rowMode: 'array'
@@ -405,7 +405,7 @@ export default function (app, pool) {
           _base_type = _base_type[2]
           //If is not a base type, we must generate all the sub tags iterating all the items
           if (!_base_type){
-            _GenerateTags(varId, varName, varType, typesList, fieldsList, data.rows[0][0])
+            _GenerateTags(varId, deviceId, varName, varType, typesList, fieldsList, data.rows[0][0])
           }
         })
         .then(() => resolve())
@@ -437,7 +437,7 @@ export default function (app, pool) {
 
   app.post('/api/addVar', (req, res) => {
     var varId, typesList, fieldsList
-    var varDevice = req.body.device
+    var varTemplate = req.body.template
     var varName = req.body.name
     var varType = req.body.type
     var varUm = req.body.um
@@ -460,17 +460,18 @@ export default function (app, pool) {
       .then(data => {  
         fieldsList = data.rows 
         //Inserting the Var
-        queryString = `INSERT INTO "Var" (id, device, name, type, um, logic_state, comment) VALUES (DEFAULT, '${varDevice}', '${varName}', ${varType}, ${varUm}, ${varLogicState}, '${varComment}') RETURNING "id"`
+        queryString = `INSERT INTO "Var" (id, name, template, type, um, logic_state, comment) VALUES (DEFAULT, '${varName}', '${varTemplate}', ${varType}, ${varUm}, ${varLogicState}, '${varComment}') RETURNING "id"`
         pool.query({
           text: queryString,
           rowMode: 'array'
         })
-        .then(data => {
-          varId = data.rows[0][0]
-          GenerateTags(varId, varName, varType, typesList, fieldsList, varUm, varLogicState, varComment)
-          .then(response => { res.json({result: response, message: "Tags refreshed"})})
-          .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-        })
+        .then(data => { res.json({result: data, message: "Tags refreshed"})})
+        // .then(data => {
+        //   varId = data.rows[0][0]
+        //   GenerateTags(varId, varName, varDevice, varType, typesList, fieldsList, varUm, varLogicState, varComment)
+        //   .then(response => { res.json({result: response, message: "Tags refreshed"})})
+        //   .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
+        // })
       })
       .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
     })
@@ -501,7 +502,7 @@ export default function (app, pool) {
 
   app.post('/api/modifyVar', (req, res) => {
     var varId, typesList, fieldsList
-    var varDevice = req.body.device
+    var varTemplate = req.body.template
     var varName = req.body.name
     var varType = req.body.type
     var varUm = req.body.um
@@ -524,7 +525,7 @@ export default function (app, pool) {
       .then(data => {  
         fieldsList = data.rows 
         //Inserting the Var
-        queryString=`UPDATE "Var" SET device = '${varDevice}', name = '${varName}', type = ${varType}, um = ${varUm}, logic_state = ${varLogicState}, comment = '${varComment}' WHERE id = ${req.body.id}`
+        queryString=`UPDATE "Var" SET name = '${varName}', template = '${varTemplate}', type = ${varType}, um = ${varUm}, logic_state = ${varLogicState}, comment = '${varComment}' WHERE id = ${req.body.id}`
         pool.query({
           text: queryString,
           rowMode: 'array'
@@ -612,43 +613,41 @@ export default function (app, pool) {
   Err:    400
   */
   app.post('/api/refreshTags', (req, res) => {
-    var varId, varName, varType, varsList, typesList, fieldsList, varUm, varLogicState
+    var varId, varName, varType, varsList, typesList, fieldsList, varUm, varLogicState;
     deleteTags()
-    .then(() => {
-      getVars()
-      .then(data => {
-        varsList = data
-        getTypes()
-        .then(data => {
-          typesList = data
-          getFields()
-          .then(data => {
-            fieldsList = data
-            var promises = []
-            varsList.forEach(v => {
-              varId = v[0]
-              varName = v[1]
-              varType = v[2]
-              varUm = v[3]
-              varLogicState = v[4]
-              //console.log(varId, varName, varType, typesList, fieldsList, varUm, varLogicState)
-              promises.push(
-                GenerateTags(varId, varName, varType, typesList, fieldsList, varUm, varLogicState)
-                .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-              )
-            })
-            Promise.all(promises)
-            .then(response => { res.json({result: response, message: "Tags refreshed"})})
-            .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-          })
-          .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error}))
-        })
-        .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
+      .then(() => {
+        return getVars();
       })
-      .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-    })
-    .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-  })
+      .then((data) => {
+        varsList = data;
+        return getTypes();
+      })
+      .then((data) => {
+        typesList = data;
+        return getFields();
+      })
+      .then((data) => {
+        fieldsList = data;
+        const promises = varsList.map((v) => {
+          varId = v[0];
+          varName = v[1];
+          varType = v[2];
+          varUm = v[3];
+          varLogicState = v[4];
+          return GenerateTags(varId, varName, varType, typesList, fieldsList, varUm, varLogicState);
+        });
+        return Promise.all(promises);
+      })
+      .then((response) => {
+        res.json({ result: response, message: "Tags refreshed" });
+      })
+      .catch((error) => {
+        console.error(error);
+        if (!res.headersSent) {
+          res.status(400).json({ code: error.code, detail: error.detail, message: error.message });
+        }
+      });
+  });
 
       
   /*
@@ -861,7 +860,7 @@ export default function (app, pool) {
 
   // Aggiungi un dispositivo
   app.post('/api/addDevice', (req, res) => {
-    const queryString = `INSERT INTO "Device" (id, name, status) VALUES (DEFAULT, '${req.body.name}', 0) RETURNING id`;
+    const queryString = `INSERT INTO "Device" (id, name, template, status) VALUES (DEFAULT, '${req.body.name}', '${req.body.template}', 0) RETURNING id`;
     pool.query({
       text: queryString,
       rowMode: 'array'
@@ -911,5 +910,107 @@ export default function (app, pool) {
     })
     .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
   })
+
+
+  /**
+   * Aggiungi un template
+   * @route POST /api/addTemplate
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} req.body - Il corpo della richiesta.
+   * @param {string} req.body.name - Il nome del template da aggiungere.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - L'ID del template aggiunto e un messaggio di conferma.
+   */
+
+  /**
+   * Modifica un template
+   * @route POST /api/modifyTemplate
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} req.body - Il corpo della richiesta.
+   * @param {number} req.body.id - L'ID del template da modificare.
+   * @param {string} req.body.name - Il nuovo nome del template.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - Un messaggio di conferma.
+   */
+
+  /**
+   * Ottieni tutti i template
+   * @route GET /api/getTemplates
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - Un array di template e un messaggio di conferma.
+   */
+
+  /**
+   * Elimina un template
+   * @route POST /api/removeTemplate
+   * @param {Object} req - La richiesta HTTP.
+   * @param {Object} req.body - Il corpo della richiesta.
+   * @param {number} req.body.id - L'ID del template da eliminare.
+   * @param {Object} res - La risposta HTTP.
+   * @returns {Object} - Un messaggio di conferma.
+   */
+
+  // Aggiungi un template
+  app.post('/api/addTemplate', (req, res) => {
+    const queryString = `INSERT INTO "Template" (id, name) VALUES (DEFAULT, '${req.body.name}') RETURNING id`;
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => {
+      res.json({ result: data.rows[0], message: "Template inserted" })
+    })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
+
+  // Modifica un template
+  app.post('/api/modifyTemplate', (req, res) => {
+    const queryString = `UPDATE "Template" SET name = '${req.body.name}', WHERE id = ${req.body.id}`;
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => {
+      res.json({ result: data.rows[0], message: "Template updated" })
+    })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
+
+  // Ottieni tutti i template
+  app.get('/api/getTemplates', (req, res) => {
+    const queryString = `SELECT * FROM "Template"`;
+    pool.query({
+      text: queryString,
+      rowMode: 'array'
+    })
+    .then(data => { res.json({ result: data.rows, message: "Templates retrieved" }) })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
+
+  // Elimina un template
+  app.post('/api/removeTemplate', (req, res) => {
+    const checkDevicesQuery = `SELECT COUNT(*) FROM "Device" WHERE template = ${req.body.id}`;
+    pool.query({
+      text: checkDevicesQuery,
+      rowMode: 'array'
+    })
+    .then(data => {
+      if (parseInt(data.rows[0][0]) > 0) {
+        res.status(400).json({ message: "Cannot delete template: it is referenced by one or more devices." });
+      } else {
+        const deleteTemplateQuery = `DELETE FROM "Template" WHERE id = ${req.body.id}`;
+        pool.query({
+          text: deleteTemplateQuery,
+          rowMode: 'array'
+        })
+        .then(() => {
+          res.json({ message: "Template and associated Vars deleted successfully." });
+        })
+        .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+      }
+    })
+    .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
 
 }
