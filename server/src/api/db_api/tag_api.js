@@ -2,158 +2,192 @@ import globalEventEmitter from '../../Helpers/globalEventEmitter.js';
 
 export default function (app, pool) {
 
-  const getVars = () => {
+  const DeleteTags = (pool, { deviceIds = [], varIds = [], deviceId = null }) => {
     return new Promise((resolve, reject) => {
-      //Retreiving the typesList
-      var queryString = `SELECT id, name, type from "Var"`
-      pool.query({
-        text: queryString,
-        rowMode: 'array'
-      })
-      .then(data => resolve(data.rows))
-      .catch(error => reject(error))    
-    })
-  }
+      let queryString = `DELETE FROM "Tag" WHERE 1=1`;
 
-  const getTypes = () => {
-    return new Promise((resolve, reject) => {
-      //Retreiving the typesList
-      var queryString = `SELECT * from "Type"`
-      pool.query({
-        text: queryString,
-        rowMode: 'array'
-      })
-      .then(data => resolve(data.rows))
-      .catch(error => reject(error))    
-    })
-  }
+      // Aggiungi i filtri per i device e le variabili, se specificati
+      if (deviceId) {
+        queryString += ` AND device = ${deviceId}`;
+      } else if (deviceIds.length > 0) {
+        queryString += ` AND device IN (${deviceIds.join(',')})`;
+      }
+      if (varIds.length > 0) {
+        queryString += ` AND var IN (${varIds.join(',')})`;
+      }
 
-  const getFields = () => {
-    return new Promise((resolve, reject) => {
-      //Retreiving the fieldsList
-      pool.query({text: `SELECT * from "Field"`, rowMode: 'array'})
-        .then(data => resolve(data.rows))
-        .catch(error => reject(error))    
-    })
-  }
-
-  const deleteTags = () => {
-    return new Promise((resolve, reject) => {
-      //Retreiving the fieldsList
-      var queryString = `TRUNCATE "Tag"`
-      console.log("Deleting tags: ", queryString)
-      pool.query({
-        text: queryString,
-        rowMode: 'array'
-      })
-      .then(() => {
-        console.log("Tags deleted")
-        resolve()
-      })
-      .catch(error => {
-        console.log("Error during tags deletion", error)
-        reject(error)
-      })    
-    })
-  }
-
-
-
-  
-  /*
-  0: real
-  1: bool
-  2: _Set
-  3: _Act
-  4: _Limit
-  5: Set
-  6: Act
-  7: SetAct
-
-  Creo una Var "Power" di tipo SetAct:
-  Power: {
-    Set: {
-      InputValue: 0.0,
-      Value: 0.0
-    },
-    Act: {
-      Value: 0.0
-    },
-    Limit: {
-      Min: 0.0,
-      Max: 0.0
-    },
-  }
-
-  devo generare tutte le tag che la compongono:
-  (PK) = Var (FK) + TypeField (FK)      Name                    Var (FK)          Parent Tag (IFK)   TypeField (FK)  Value
-                                        Power                   Power(id)         NULL               7               NULL
-                                        Power.Set               Power(id)         10                 2               NULL
-                                        Power.Act               Power(id)         10                 3               NULL
-                                        Power.Limit             Power(id)         10                 4               NULL
-                                        Power.Set.InputValue    Power(id)         11                 8               0
-                                        Power.Set.Value         Power(id)         11                 9               0
-                                        Power.Act.Value         Power(id)         12                 6               0
-                                        Power.Limit.Min         Power(id)         13                 5               0
-                                        Power.Limit.Max         Power(id)         13                 8               0
-
-  For each t in Types
-    Select_One parent_type from Fields where type == t
-  */
-
-
-  const _GenerateTags = (varId, deviceId, name, type, typesList, fieldsList, parent_tag) => {
-    //Iterate through the types tree until it reaches the leaves, generating the tags
-    fieldsList.filter(i => i[3] === type).forEach(f => {
-      var tagName = name+'.'+f[1]
-      var queryString=`INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${tagName}', ${deviceId}, ${varId}, ${parent_tag}, ${f[0]}, ${f[4] !== undefined ? f[4] : 'NULL'}, ${f[5] !== undefined ? f[5] : 'NULL'}, ${f[6] !== undefined ? `'${f[6]}'` : 'NULL'}) RETURNING "id"`
-      pool.query({
-        text: queryString,
-        rowMode: 'array'
-      })
-      .then(data => {
-        var _base_type = typesList.find(i => i[0] === f[2])
-        _base_type = _base_type[2]
-        if (!_base_type){
-          _GenerateTags(varId, tagName, f[2], typesList, fieldsList, data.rows[0][0])
-        }
-      })
-      return
-    })
-  }
-
-  const GenerateTags = (varId, deviceId, varName, varType, typesList, fieldsList, um, logic_state, comment) => {
-    return new Promise((resolve, reject) => {
-      // Delete old tags
-      var queryString = `DELETE FROM "Tag" WHERE var = ${varId}`;
+      console.log("Deleting tags with query: ", queryString);
       pool.query({
         text: queryString,
         rowMode: 'array',
       })
         .then(() => {
-          // Inserting the first Tag corresponding to the var
-          queryString = `INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${varName}', ${deviceId}, ${varId}, NULL, NULL, ${um !== undefined ? um : 'NULL'}, ${logic_state !== undefined ? logic_state : 'NULL'}, ${comment !== undefined ? `'${comment}'` : 'NULL'}) RETURNING "id"`;
-          return pool.query({
-            text: queryString,
-            rowMode: 'array',
-          });
+          console.log("Tags deleted");
+          resolve();
         })
-        .then(data => {
-          var _base_type = typesList.find(i => i[0] === varType);
-          _base_type = _base_type[2];
-          // If it is not a base type, generate all the sub-tags iterating all the items
-          if (!_base_type) {
-            _GenerateTags(varId, deviceId, varName, varType, typesList, fieldsList, data.rows[0][0]);
+        .catch((error) => {
+          console.log("Error during tags deletion", error);
+          reject(error);
+        });
+    });
+  };
+
+  const _GenerateTags = (varId, deviceId, name, type, typesList, fieldsList, parent_tag) => {
+    // Verifica che fieldsList sia un array
+    if (!Array.isArray(fieldsList)) {
+      console.error("fieldsList is not an array:", fieldsList);
+      return;
+    }
+
+    // Itera attraverso i campi e genera le tag
+    fieldsList.filter(i => i[3] === type).forEach(f => {
+      var tagName = name + '.' + f[1];
+      var queryString = `INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${tagName}', ${deviceId}, ${varId}, ${parent_tag}, ${f[0]}, ${f[4] !== undefined ? f[4] : 'NULL'}, ${f[5] !== undefined ? f[5] : 'NULL'}, ${f[6] !== undefined ? `'${f[6]}'` : 'NULL'}) RETURNING "id"`;
+      pool.query({
+        text: queryString,
+        rowMode: 'array'
+      })
+      .then(data => {
+        var _base_type = typesList.find(i => i[0] === f[2]);
+        _base_type = _base_type[2];
+        if (!_base_type) {
+          _GenerateTags(varId, tagName, f[2], typesList, fieldsList, data.rows[0][0]);
+        }
+      })
+      .catch(error => {
+        console.error("Error generating tags:", error);
+      });
+    });
+  };
+
+  const GenerateTags = (pool, { templateId = null, typeId = null, deviceId = null }) => {
+    return new Promise((resolve, reject) => {
+      let deviceQuery;
+
+      // Determina la query per i device coinvolti
+      if (deviceId) {
+        deviceQuery = `SELECT id FROM "Device" WHERE id = ${deviceId}`;
+      } else if (templateId) {
+        deviceQuery = `SELECT DISTINCT "Device".id FROM "Device" WHERE template = ${templateId}`;
+      } else if (typeId) {
+        deviceQuery = `
+          SELECT DISTINCT "Device".id
+          FROM "Device"
+          INNER JOIN "Var" ON "Device".template = "Var".template
+          WHERE "Var".type IN (
+            SELECT DISTINCT "Type".id
+            FROM "Type"
+            WHERE "Type".id IN (${[...DFS(buildDependencyGraph(fieldsList), typeId)].join(',')})
+          )`;
+      } else {
+        deviceQuery = `SELECT DISTINCT "Device".id FROM "Device"`;
+      }
+
+      let deviceIds = [];
+      let varsList = [];
+      let typesList = [];
+      let fieldsList = [];
+
+      pool.query({
+        text: deviceQuery,
+        rowMode: 'array',
+      })
+        .then((deviceData) => {
+          deviceIds = deviceData.rows.map((row) => row[0]);
+
+          // Recupera tutte le variabili, i tipi e i campi
+          const varsQuery = `SELECT id, name, type, template, um, logic_state, comment FROM "Var"`;
+          const typesQuery = `SELECT * FROM "Type"`;
+          const fieldsQuery = `SELECT * FROM "Field"`;
+
+          return Promise.all([
+            pool.query({ text: varsQuery, rowMode: 'array' }),
+            pool.query({ text: typesQuery, rowMode: 'array' }),
+            pool.query({ text: fieldsQuery, rowMode: 'array' }),
+          ]);
+        })
+        .then(([varsData, typesData, fieldsData]) => {
+          varsList = varsData.rows;
+          typesList = typesData.rows;
+          fieldsList = fieldsData.rows;
+
+          // Se è specificato un typeId, calcola tutte le dipendenze del tipo
+          let dependentTypeIds = new Set();
+          if (typeId) {
+            const graph = buildDependencyGraph(fieldsList);
+            dependentTypeIds = DFS(graph, typeId);
           }
+
+          // Filtra le variabili in base al template o alle dipendenze del tipo
+          const filteredVars = varsList.filter((v) => {
+            if (templateId) return v[3] === templateId; // Filtra per template
+            if (typeId) return dependentTypeIds.has(v[2]); // Filtra per dipendenze del tipo
+            return true; // Nessun filtro
+          });
+
+          const varIds = filteredVars.map((v) => v[0]);
+
+          // Elimina le tag coinvolte
+          return DeleteTags(pool, { deviceIds, varIds, deviceId }).then(() => ({
+            deviceIds,
+            filteredVars,
+          }));
+        })
+        .then(({ deviceIds, filteredVars }) => {
+          // Rigenera le tag per i device e le variabili filtrate
+          const promises = deviceIds.map((currentDeviceId) => {
+            return filteredVars.map((v) => {
+              const varId = v[0];
+              const varName = v[1];
+              const varType = v[2];
+              const varUm = v[4];
+              const varLogicState = v[5];
+              const varComment = v[6];
+
+              // Inserisce la prima tag associata alla variabile
+              const insertQuery = `INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${varName}', ${currentDeviceId}, ${varId}, NULL, NULL, ${varUm !== undefined ? varUm : 'NULL'}, ${varLogicState !== undefined ? varLogicState : 'NULL'}, ${varComment !== undefined ? `'${varComment}'` : 'NULL'}) RETURNING "id"`;
+              return pool.query({
+                text: insertQuery,
+                rowMode: 'array',
+              })
+                .then((insertData) => {
+                  const parentTagId = insertData.rows[0][0];
+                  const _base_type = typesList.find((i) => i[0] === varType)?.[2];
+
+                  // Se non è un tipo base, genera le sottotag
+                  if (!_base_type) {
+                    _GenerateTags(varId, currentDeviceId, varName, varType, typesList, fieldsList, parentTagId);
+                  }
+                });
+            });
+          });
+
+          return Promise.all(promises.flat());
         })
         .then(() => resolve())
-        .catch(error => reject(error));
+        .catch((error) => reject(error));
     });
-  }
+  };
 
+  // Funzione per costruire il grafo delle dipendenze
+  const buildDependencyGraph = (fieldsList) => {
+    const graph = {};
+    fieldsList.forEach((field) => {
+      const type = field[2];
+      const parentType = field[3];
+      if (!graph[parentType]) graph[parentType] = [];
+      graph[parentType].push(type);
+    });
+    return graph;
+  };
 
-
-
+  // Algoritmo DFS per calcolare tutte le dipendenze di un tipo
+  const DFS = (graph, typeId, visited = new Set()) => {
+    if (visited.has(typeId)) return visited;
+    visited.add(typeId);
+    (graph[typeId] || []).forEach((childType) => DFS(graph, childType, visited));
+    return visited;
+  };
 
   /*
   Delete tags
@@ -170,12 +204,11 @@ export default function (app, pool) {
   Err:    400
   */
   app.post('/api/deleteTags', (req, res) => {
-    //Delete old tags
-    deleteTags()
-    .then(data => res.json({result: data, message: "Query executed, old tags cleaned"}))
-    .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-  })
-
+    const { deviceIds = [], varIds = [], deviceId = null } = req.body;
+    DeleteTags(pool, { deviceIds, varIds, deviceId })
+      .then(data => res.json({ result: data, message: "Query executed, tags deleted" }))
+      .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
+  });
 
   /*
   Refresh tags
@@ -192,39 +225,27 @@ export default function (app, pool) {
   Err:    400
   */
   app.post('/api/refreshTags', (req, res) => {
-    var varId, varName, varType, varsList, typesList, fieldsList, varUm, varLogicState;
-    deleteTags()
+    const { templateId = null, typeId = null, deviceId = null } = req.body;
+
+    GenerateTags(pool, { templateId, typeId, deviceId })
       .then(() => {
-        return getVars();
-      })
-      .then((data) => {
-        varsList = data;
-        return getTypes();
-      })
-      .then((data) => {
-        typesList = data;
-        return getFields();
-      })
-      .then((data) => {
-        fieldsList = data;
-        const promises = varsList.map((v) => {
-          varId = v[0];
-          varName = v[1];
-          varType = v[2];
-          varUm = v[3];
-          varLogicState = v[4];
-          return GenerateTags(varId, varName, varType, typesList, fieldsList, varUm, varLogicState);
-        });
-        return Promise.all(promises);
-      })
-      .then((response) => {
-        res.json({ result: response, message: "Tags refreshed" });
+        res.json({ message: "Tags refreshed successfully" });
       })
       .catch((error) => {
         console.error(error);
         if (!res.headersSent) {
           res.status(400).json({ code: error.code, detail: error.detail, message: error.message });
         }
+      });
+  });
+
+  globalEventEmitter.on('refreshTags', (data) => {
+    GenerateTags(pool, data)
+      .then(() => {
+        console.log("Tags refreshed successfully via event");
+      })
+      .catch((error) => {
+        console.error("Error refreshing tags via event:", error);
       });
   });
 }

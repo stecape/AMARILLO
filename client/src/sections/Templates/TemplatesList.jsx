@@ -66,7 +66,6 @@ function TemplatesList () {
                         //the name of the template to edit is initialized, and so it is the template Id and the relative vars.
                         axios.post(`${serverIp}/api/getVars`, {template: item.id})
                         .then((res) => {
-                          console.log(res)
                           setUpsertTemplate(() => ({
                             create: false,
                             templateNameQuery: `UPDATE "Template" SET name='${res.data.result.name}' WHERE id = ${res.data.result.template} RETURNING id INTO templateId;`,

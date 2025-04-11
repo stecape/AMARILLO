@@ -31,7 +31,7 @@ function TagsList () {
         <TableBody>
           {ctx.vars.length>0 && ctx.types.length>0 && ctx.fields.length>0 && ctx.tags.map((item) => {
             //1 is a placeholder test value, to not have it undefined
-            var deviceItem = ctx.devices.find(i => i.id === ctx.vars.find(i => i.id === item.var).device)
+            var deviceItem = ctx.devices.find(i => i.id === item.device)
             var typeItem =1
             var umItem =1
             var logic_stateItem =1

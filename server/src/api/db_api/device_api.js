@@ -35,6 +35,7 @@ export default function (app, pool) {
 
   // Aggiungi un dispositivo
   app.post('/api/addDevice', (req, res) => {
+    console.log(req.body)
     const queryString = `INSERT INTO "Device" (id, name, template, status) VALUES (DEFAULT, '${req.body.name}', '${req.body.template}', 0) RETURNING id`;
     pool.query({
       text: queryString,
@@ -42,6 +43,7 @@ export default function (app, pool) {
     })
     .then(data => {
       globalEventEmitter.emit('deviceAdded')
+      globalEventEmitter.emit('refreshTags', { deviceId: req.body.id })
       res.json({ result: data.rows[0], message: "Device inserted" })
     })
     .catch(error => res.status(400).json({ code: error.code, detail: error.detail, message: error.detail }));
@@ -81,6 +83,7 @@ export default function (app, pool) {
     })
     .then(data => {
       globalEventEmitter.emit('deviceDeleted')
+      globalEventEmitter.emit('DeleteTags', { deviceId: req.body.id })
       res.json({ result: data.rows[0], message: "Device deleted" })
     })
     .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))

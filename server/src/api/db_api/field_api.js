@@ -1,7 +1,7 @@
 import globalEventEmitter from '../../Helpers/globalEventEmitter.js';
 
 export default function (app, pool) {
-  
+
   // DFS function to traverse the graph and find all dependencies
   // It uses a depth counter to keep track of the depth of the recursion
   // and a visited set to avoid cycles in the graph
@@ -40,6 +40,7 @@ export default function (app, pool) {
         fields: [],
         deps: []
       };
+      var result = [];
       // Type name query
       var queryString = `SELECT name FROM "Type" WHERE id = ${type}`;
       pool.query({
@@ -68,7 +69,6 @@ export default function (app, pool) {
             comment: field[6],
             QRef: i,
           }));
-          var result = [];
           /*
           Questa query per ogni type, dato il type.id, per tutti e soli i fields di quel type, restituisce l'arrey delle coppie [type.id, field.parent_type], prese una volta sola (le coppie non si ripetono: se un type id è presente due volte in un parent type, viene considerato una volta sola. ES: type ambientContitions : {(act) temperature, (act) moisture})
           [

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { AppBar, AppBarTitle, AppBarNav } from '@react-md/app-bar';
 import { Grid, GridCell } from '@react-md/utils'
 import { Button } from "@react-md/button"
@@ -7,22 +7,30 @@ import { ArrowBackFontIcon } from '@react-md/material-icons';
 import {
   Form,
   TextField,
-  FormThemeProvider
+  FormThemeProvider,
+  Select
 } from '@react-md/form'
 import gridStyles from '../../styles/Grid.module.scss'
 import formStyles from '../../styles/Form.module.scss'
+import {ctxData} from "../../Helpers/CtxProvider"
 
 function UpsertDevicePopup (props) {
-
-  const [modalState, setModalState] = useState({ visible: false, name: '', modalType: props.modalType})
+  const ctx = useContext(ctxData);
+  const [modalState, setModalState] = useState({
+    visible: false,
+    name: '',
+    modalType: props.modalType,
+    template: 0
+  })
   
   //Form Events
   const handleSubmit = (event) => {
     event.preventDefault()
     props.upsertDevice({
-      name: modalState.name
+      name: modalState.name,
+      template: modalState.template
     })
-    setModalState((prevState) => ({ ...prevState, name: ""}))
+    setModalState((prevState) => ({ ...prevState, name: "", template: 0}))
   }
   const handleReset = () => {
     setModalState((prevState) => ({ ...prevState, name: ""}))
@@ -63,6 +71,23 @@ function UpsertDevicePopup (props) {
                       className={formStyles.item}
                       value={modalState.name}
                       onChange={(e) => setModalState((prevState) => ({ ...prevState, name: e.target.value}))}
+                    />
+                    <Select
+                      id="template"
+                      key="template"
+                      options={ctx.templates.map((item) => ({
+                        label: item.name,
+                        value: item.id,
+                      }))}
+                      value={modalState.template.toString()}
+                      label="Template"
+                      className={formStyles.item}
+                      onChange={(value) =>
+                        setModalState((prevState) => ({
+                          ...prevState,
+                          template: Number(value),
+                        }))
+                      }
                     />
                     <div className={formStyles.btn_container}>
                       <Button

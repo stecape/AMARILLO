@@ -25,6 +25,7 @@ function VarsList () {
     //we retreive the var to update object from the array of the fileds and his index,
     //we create a mirror object so that we can update it with the new information and then we recreate the full vars 
     //array with the new information
+    console.log(modifyVarPopup.QRef)
     var varToUpdateIndex = upsertTemplate.vars.findIndex(i => i.QRef === modifyVarPopup.QRef)
     var varToUpdate = upsertTemplate.vars[varToUpdateIndex]
     varToUpdate.name = data.name
@@ -115,6 +116,7 @@ function VarsList () {
                 var typeItem = ctx.types.find(i => i.id === item.type)
                 var umItem = ctx.ums.find(i => i.id === item.um)
                 var logic_stateItem = ctx.logicStates.find(i => i.id === item.logic_state)
+                console.log(item)
                 return (
                   <TableRow
                     key={item.id}

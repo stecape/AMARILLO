@@ -152,5 +152,63 @@ export default function (app, pool) {
       res.json({result: data.rows, message: "Record correctly removed from table \"" + req.body.table + "\" "})
     })
     .catch(error => res.status(400).json({code: error.code, detail: error.detail, message: error.detail}))
-  })
+  });
+
+  /*
+  Get all Vars
+  Type:   POST
+  Route:  '/api/getVars'
+  Body:   { template: 1 }
+  Query:  SELECT * FROM "Var"
+  Res:    200,
+          {
+            result: [
+              { id: 1, name: 'Power', type: 7, template: 'Template1', um: 'kW', logic_state: 'Active', comment: 'Main power variable' },
+              ...
+            ],
+            message: "Vars retrieved successfully"
+          }
+  Err:    400
+  */
+  app.post('/api/getVars', (req, res) => {
+    let queryString = `SELECT * FROM "Var" WHERE template = ${req.body.template} ORDER BY id`;
+
+    pool.query({
+      text: queryString,
+      rowMode: 'array',
+    })
+      .then(data => {
+        const vars = data.rows.map((va, i) => ({
+          id: va[0],
+          type: va[1],
+          name: va[2],
+          template: va[3],
+          um: va[4],
+          logic_state: va[5],
+          comment: va[6],
+          QRef: i,
+        }));
+
+        // Recupera il nome del template
+        const templateQuery = `SELECT name FROM "Template" WHERE id = ${req.body.template}`;
+        return pool.query({
+          text: templateQuery,
+          rowMode: 'array',
+        }).then(templateData => {
+          const templateName = templateData.rows[0] ? templateData.rows[0][0] : "Unknown Template";
+
+          // Costruisce l'oggetto di risposta
+          const response = {
+            name: templateName,
+            template: req.body.template,
+            vars: vars,
+          };
+
+          res.json({ result: response, message: "Vars retrieved successfully" });
+        });
+      })
+      .catch(error => {
+        res.status(400).json({ code: error.code, detail: error.detail, message: error.detail });
+      });
+  });
 }

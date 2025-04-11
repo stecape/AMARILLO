@@ -17,7 +17,7 @@ root.render(
     <MessageQueue id="notify" duplicates="allow">
       <SocketContext.Provider value={socket}>
         <CtxProvider>
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Configuration>
               <Layout />
             </Configuration>

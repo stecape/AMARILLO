@@ -119,8 +119,8 @@ export default function (client) {
       ON public."Tag" (device, parent_tag, type_field);
     
     ALTER TABLE IF EXISTS public."Tag"
-      DROP CONSTRAINT IF EXISTS unique_tag_name,
-      ADD CONSTRAINT unique_tag_name UNIQUE (name),
+      DROP CONSTRAINT IF EXISTS unique_device_and_tag_name,
+      ADD CONSTRAINT unique_device_and_tag_name UNIQUE (device, name),
       DROP CONSTRAINT IF EXISTS tag_parent_tag_id,
       ADD CONSTRAINT tag_parent_tag_id FOREIGN KEY (parent_tag)
         REFERENCES public."Tag" (id) MATCH SIMPLE
@@ -172,24 +172,24 @@ export default function (client) {
       DROP CONSTRAINT IF EXISTS var_type_id,
       ADD CONSTRAINT var_type_id FOREIGN KEY (type)
         REFERENCES public."Type" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
+        ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID,
       DROP CONSTRAINT IF EXISTS var_um_id,
       ADD CONSTRAINT var_um_id FOREIGN KEY (um)
         REFERENCES public."um" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
+        ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID,
       DROP CONSTRAINT IF EXISTS var_template_id,
       ADD CONSTRAINT var_template_id FOREIGN KEY (template)
         REFERENCES public."Template" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
+        ON UPDATE CASCADE
         ON DELETE CASCADE,
       DROP CONSTRAINT IF EXISTS var_logic_state_id,
       ADD CONSTRAINT var_logic_state_id FOREIGN KEY (logic_state)
         REFERENCES public."LogicState" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
+        ON UPDATE CASCADE
         ON DELETE NO ACTION
         NOT VALID;
 
@@ -329,6 +329,11 @@ export default function (client) {
     CREATE OR REPLACE TRIGGER TagUpdatingTrigger AFTER UPDATE ON "Tag" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER TagDeletingTrigger AFTER DELETE ON "Tag" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER TagTruncatingTrigger AFTER TRUNCATE ON "Tag" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
+    -- triggers on Template
+    CREATE OR REPLACE TRIGGER TemplateInsertionTrigger AFTER INSERT ON "Template" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TemplateUpdatingTrigger AFTER UPDATE ON "Template" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TemplateDeletingTrigger AFTER DELETE ON "Template" FOR EACH ROW EXECUTE PROCEDURE return_data();
+    CREATE OR REPLACE TRIGGER TemplateTruncatingTrigger AFTER TRUNCATE ON "Template" FOR EACH STATEMENT EXECUTE PROCEDURE return_data();
     -- triggers on Device
     CREATE OR REPLACE TRIGGER DeviceInsertionTrigger AFTER INSERT ON "Device" FOR EACH ROW EXECUTE PROCEDURE return_data();
     CREATE OR REPLACE TRIGGER DeviceUpdatingTrigger AFTER UPDATE ON "Device" FOR EACH ROW EXECUTE PROCEDURE return_data();

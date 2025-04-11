@@ -118,6 +118,7 @@ export const CtxProvider = ({ children }) => {
 
       
 
+      console.log("value: ", value)
       switch(value.table){
         //Type
         case "Type":
@@ -287,23 +288,23 @@ export const CtxProvider = ({ children }) => {
           }
           break
 
-          //Devices
+          //Template
           case "Template":
             switch(value.operation){
               case 'INSERT':
-                setDevices(prevTemplates => [...prevTemplates, value.data])
+                setTemplates(prevTemplates => [...prevTemplates, value.data])
                 break
   
               case 'DELETE':
-                setDevices(prevTemplates => [...prevTemplates.filter(i => i.id !== value.data.id)])
+                setTemplates(prevTemplates => [...prevTemplates.filter(i => i.id !== value.data.id)])
                 break
   
               case 'TRUNCATE':
-                setDevices(prevTemplates => [...[]])
+                setTemplates(prevTemplates => [...[]])
                 break
   
               case 'UPDATE':
-                setDevices(prevTemplates => [...prevTemplates.map(i => { return i.id === value.data.id ? value.data : i })])
+                setTemplates(prevTemplates => [...prevTemplates.map(i => { return i.id === value.data.id ? value.data : i })])
                 break
                 
               default:
