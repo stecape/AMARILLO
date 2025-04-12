@@ -42,39 +42,56 @@ export default function Home() {
     return { name: type.name, fields: fields }
   })
 
-  // Generazione delle istanze a partire dalla tabella delle Vars
+  // Aggiornamento della logica per risalire al template e utilizzare i tags
   let device = ctx.devices.find(d => d.id === selectedDevice);
 
+  // Filtrare le tag in base al device selezionato per popolare correttamente gli array id e type
   if (device) {
-    structs.vars = ctx.vars
-      .filter(v => v.template === device.template)
-      .map(v => {
+    structs.vars = ctx.tags
+      .filter(tag => tag.device === selectedDevice) // Filtra solo le tag del device selezionato
+      .map(tag => {
+        const variable = ctx.vars.find(v => v.id === tag.var);
         return {
-          id: v.id,
-          name: v.name,
+          id: variable.id,
+          name: variable.name,
           type:
-            basetypes[ctx.types.find(t => t.id === v.type)?.name] !== undefined
-              ? basetypes[ctx.types.find(t => t.id === v.type)?.name]
-              : ctx.types.find(t => t.id === v.type)?.name,
+            basetypes[ctx.types.find(t => t.id === variable.type)?.name] !== undefined
+              ? basetypes[ctx.types.find(t => t.id === variable.type)?.name]
+              : ctx.types.find(t => t.id === variable.type)?.name,
         };
       });
   } else {
     structs.vars = []; // Se il device non è definito, structs.vars rimane vuoto
   }
 
-  
+  // Ottimizzazione della generazione del contenuto per evitare ripetizioni
+  structs.vars = Array.from(new Set(structs.vars.map(v => JSON.stringify(v)))).map(v => JSON.parse(v));
+
   structs.vars.forEach(v => {
-    //le tag da inizializzare sono quelle la cui var è un tipo base oppure quelle il cui field type un tipo base (tagIsBaseType(t, ctx))
-    let initTags = ctx.tags.filter(t => (t.var === v.id && t.type_field !== null && IsBaseType(t.type_field, ctx.fields, ctx.types).result) || (t.var === v.id && IsBaseType(v.id, ctx.vars, ctx.types).result))
+    let initTags = ctx.tags.filter(t => t.device === selectedDevice && // Filtra solo le tag del device selezionato
+      ((t.var === v.id && t.type_field !== null && IsBaseType(t.type_field, ctx.fields, ctx.types).result) || 
+      (t.var === v.id && IsBaseType(v.id, ctx.vars, ctx.types).result)));
 
     initTags.forEach(t => {
-      let type = t.type_field !== null ? IsBaseType(t.type_field, ctx.fields, ctx.types).type : IsBaseType(v.id, ctx.vars, ctx.types).type
-      structs.tagType.push(ctx.types.find(t => t.id === type).name.toUpperCase())
-      structs.tagId.push(t.id)
-      structs.tagPointer.push(`(void*)&HMI.${t.name}`)
-    })
-  })
+      let type = t.type_field !== null ? IsBaseType(t.type_field, ctx.fields, ctx.types).type : IsBaseType(v.id, ctx.vars, ctx.types).type;
+      structs.tagType.push(ctx.types.find(t => t.id === type).name.toUpperCase());
+      structs.tagId.push(t.id);
+      structs.tagPointer.push(`(void*)&HMI.${t.name}`);
+    });
+  });
 
+  // Verifica e allineamento dell'ordine degli elementi tra id, type, HMI_pointer e PLC_pointer
+  const alignedData = structs.tagId.map((id, index) => ({
+    id,
+    type: structs.tagType[index],
+    HMI_pointer: structs.tagPointer[index],
+    PLC_pointer: structs.tagPointer[index].replace("&HMI", "&PLC"),
+  }));
+
+  structs.tagId = alignedData.map(data => data.id);
+  structs.tagType = alignedData.map(data => data.type);
+  structs.tagPointer = alignedData.map(data => data.HMI_pointer);
+  const PLC_pointers = alignedData.map(data => data.PLC_pointer);
 
   // Funzione per generare il contenuto del primo TextContainer (HMI)
   const generate_HMI_h_Content = () => {
@@ -209,7 +226,7 @@ void *HMI_pointer[${structs.tagPointer.length}] = {
 };
 
 void *PLC_pointer[${structs.tagPointer.length}] = {
-\t${structs.tagPointer.map(pointer => pointer.replace("&HMI", "&PLC")).join(",\n\t")}
+\t${PLC_pointers.join(",\n\t")}
 };
   `;
   };
@@ -225,7 +242,7 @@ void *PLC_pointer[${structs.tagPointer.length}] = {
   return (
     <>
       <Grid>
-        <GridCell colSpan={12} className={gridStyles.item}>
+        <GridCell colSpan={12} className={gridStyles.item} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <DropdownMenu
             id="device-dropdown-menu"
             buttonChildren="Select Device"
@@ -237,6 +254,9 @@ void *PLC_pointer[${structs.tagPointer.length}] = {
               </MenuItem>
             ))}
           </DropdownMenu>
+          {selectedDevice && (
+            <span>Selected Device: {devices.find(device => device.id === selectedDevice)?.name}</span>
+          )}
         </GridCell>
         {selectedDevice && (
           <>
