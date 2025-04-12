@@ -34,10 +34,16 @@ function Set(props) {
   const limitCtrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Limit)
 
   //Retrieving all the divice information from the control and the subcontrols
-  const um = ctx.ums.find(um => um.id === props.ctrl.um).metric
-  const set = ctx.tags.find(t => t.id === setCtrl.fields.Value).value.value
-  const max = ctx.tags.find(t => t.id === limitCtrl.fields.Max).value.value
-  const min = ctx.tags.find(t => t.id === limitCtrl.fields.Min).value.value
+  //const decimalsTag = ctx.tags.find(t => t.id === props.ctrl.fields.Decimals);
+  //const decimals = decimalsTag?.value?.value ?? 0; // Usa 0 come valore predefinito se Decimals è null
+  const umTag = ctx.ums.find(um => um.id === props.ctrl.um)
+  const um = umTag?.metric ?? "Unknown Unit" // Usa "Unknown Unit" come valore predefinito se non trovato
+  const setTag = ctx.tags.find(t => t.id === setCtrl.fields.Value)
+  const set = setTag?.value?.value ?? 0 // Usa 0 come valore predefinito se Set è null
+  const maxTag = ctx.tags.find(t => t.id === limitCtrl.fields.Max)
+  const max = maxTag?.value?.value ?? 0 // Usa 0 come valore predefinito se Max è null
+  const minTag = ctx.tags.find(t => t.id === limitCtrl.fields.Min)
+  const min = minTag?.value?.value ?? 0 // Usa 0 come valore predefinito se Min è null
 
   // Funzione per aprire il popup
   const openDialog = () => {

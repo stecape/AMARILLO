@@ -42,10 +42,25 @@ export default function Home() {
     return { name: type.name, fields: fields }
   })
 
-  //Generazione delle istanze a partire dalla tabella delle Vars
-  structs.vars = ctx.vars.filter(v => v.device === selectedDevice).map(v => {
-    return { id: v.id, name: v.name, type: basetypes[ctx.types.find(t => t.id === v.type).name] !== undefined ? basetypes[ctx.types.find(t => t.id === v.type).name] : ctx.types.find(t => t.id === v.type).name }
-  })
+  // Generazione delle istanze a partire dalla tabella delle Vars
+  let device = ctx.devices.find(d => d.id === selectedDevice);
+
+  if (device) {
+    structs.vars = ctx.vars
+      .filter(v => v.template === device.template)
+      .map(v => {
+        return {
+          id: v.id,
+          name: v.name,
+          type:
+            basetypes[ctx.types.find(t => t.id === v.type)?.name] !== undefined
+              ? basetypes[ctx.types.find(t => t.id === v.type)?.name]
+              : ctx.types.find(t => t.id === v.type)?.name,
+        };
+      });
+  } else {
+    structs.vars = []; // Se il device non è definito, structs.vars rimane vuoto
+  }
 
   
   structs.vars.forEach(v => {

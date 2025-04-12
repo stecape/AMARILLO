@@ -16,18 +16,22 @@ function Act(props) {
 
   // Recupera il nome del dispositivo
   const device = ctx.devices.find(d => d.id === props.ctrl.device)?.name || "Unknown Device"
-
   //this controls has 2 subcontrols: act and limit.
   //We need to retrieve the subcontrols to fully describe the component
   const actCtrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Act)
   const limitCtrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Limit)
 
   //Retrieving all the divice information from the control and the subcontrols
-  const decimals = ctx.tags.find(t => t.id === props.ctrl.fields.Decimals).value.value
-  const um = ctx.ums.find(um => um.id === props.ctrl.um).metric
-  const act = parseFloat(ctx.tags.find(t => t.id === actCtrl.fields.HMIValue).value.value.toFixed(decimals))
-  const max = ctx.tags.find(t => t.id === limitCtrl.fields.Max).value.value
-  const min = ctx.tags.find(t => t.id === limitCtrl.fields.Min).value.value
+  const decimalsTag = ctx.tags.find(t => t.id === props.ctrl.fields.Decimals);
+  const decimals = decimalsTag?.value?.value ?? 0; // Usa 0 come valore predefinito se Decimals è null
+  const umTag = ctx.ums.find(um => um.id === props.ctrl.um)
+  const um = umTag?.metric ?? "Unknown Unit" // Usa "Unknown Unit" come valore predefinito se non trovato
+  const actTag = ctx.tags.find(t => t.id === actCtrl.fields.HMIValue)
+  const act = parseFloat(actTag?.value?.value?.toFixed(decimals) ?? 0)
+  const maxTag = ctx.tags.find(t => t.id === limitCtrl.fields.Max)
+  const max = maxTag?.value?.value ?? 0 // Usa 0 come valore predefinito se Max è null
+  const minTag = ctx.tags.find(t => t.id === limitCtrl.fields.Min)
+  const min = minTag?.value?.value ?? 0 // Usa 0 come valore predefinito se Min è null
 
   return (
     <GridCell colSpan={12} className={styles.act}>

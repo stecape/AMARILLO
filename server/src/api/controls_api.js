@@ -120,93 +120,88 @@ The object is structured as follows:
         }
     }
 }
-
 */
+
 
 import globalEventEmitter from '../Helpers/globalEventEmitter.js';
 
 export default function (app, pool) {
 
-  // Get all controls
   app.post('/api/getAllControls', async (req, res) => {
     try {
-      const deviceQuery = `SELECT * FROM "Device"`;
+      // Recupera tutti i device e i loro template
+      const deviceQuery = `SELECT id, name, template FROM "Device"`;
       const deviceResult = await pool.query({
         text: deviceQuery,
-        rowMode: 'array'
+        rowMode: 'array',
       });
       const devices = deviceResult.rows;
 
+      // Recupera tutte le variabili, i campi e le tag
+      const varsQuery = `SELECT * FROM "Var"`;
+      const fieldsQuery = `SELECT * FROM "Field"`;
+      const tagsQuery = `SELECT * FROM "Tag"`;
+
+      const [varsResult, fieldsResult, tagsResult] = await Promise.all([
+        pool.query({ text: varsQuery, rowMode: 'array' }),
+        pool.query({ text: fieldsQuery, rowMode: 'array' }),
+        pool.query({ text: tagsQuery, rowMode: 'array' }),
+      ]);
+
+      const vars = varsResult.rows;
+      const fields = fieldsResult.rows;
+      const tags = tagsResult.rows;
+
       const result = {};
 
-      for (const device of devices) {
-        const deviceId = device[0];
-        const deviceName = device[1];
+      // Costruisci la struttura dei controlli per ogni device
+      devices.forEach((device) => {
+        const [deviceId, deviceName, templateId] = device;
 
-        const tagQuery = `
-          SELECT "Tag".*
-          FROM "Tag"
-          LEFT JOIN "Field" ON "Tag".type_field = "Field".id
-          LEFT JOIN "Type" ON "Field".type = "Type".id
-          LEFT JOIN "Var" ON "Tag".var = "Var".id
-          WHERE ("Type".base_type = false OR "Tag".type_field IS null)
-          AND "Var".device = $1;
-        `;
-        const tagResult = await pool.query({
-          text: tagQuery,
-          values: [deviceId],
-          rowMode: 'array'
-        });
-        const tags = tagResult.rows;
+        // Filtra le variabili associate al template del device
+        const templateVars = vars.filter((v) => v[3] === templateId);
 
-        const fieldQuery = `SELECT * FROM "Field"`;
-        const fieldResult = await pool.query({
-          text: fieldQuery,
-          rowMode: 'array'
-        });
-        const fields = fieldResult.rows;
+        // Costruisci i controlli per ogni variabile
+        const deviceControls = templateVars.reduce((controls, variable) => {
+          const [varId, varName] = variable;
 
-        const varQuery = `SELECT * FROM "Var"`;
-        const varResult = await pool.query({
-          text: varQuery,
-          rowMode: 'array'
-        });
-        const vars = varResult.rows;
+          // Filtra le tag associate alla variabile
+          const varTags = tags.filter((tag) => tag[3] === varId);
 
-        const allTagQuery = `SELECT * FROM "Tag"`;
-        const allTagResult = await pool.query({
-          text: allTagQuery,
-          rowMode: 'array'
-        });
-        const allTags = allTagResult.rows;
+          // Costruisci i controlli per ogni tag
+          varTags.forEach((tag) => {
+            const control = {
+              device: deviceId,
+              id: tag[0],
+              name: tag[1],
+              um: tag[6],
+              logic_state: tag[7],
+              comment: tag[8],
+              fields: tags
+                .filter((t) => t[4] == tag[0])
+                .reduce((acc, _t) => {
+                  const field = fields.find((f) => f[0] == _t[5]);
+                  if (field) {
+                    acc[field[1]] = _t[0];
+                  }
+                  return acc;
+                }, {}),
+            };
 
-        const deviceResult = tags.reduce((list, tag) => {
-          const obj = {
-            device: deviceId,
-            id: tag[0],
-            name: tag[1],
-            um: tag[5],
-            logic_state: tag[6],
-            comment: tag[7],
-            fields: allTags.filter(t => t[3] == tag[0]).reduce((acc, _t) => {
-              const field = fields.find(f => f[0] == _t[4]);
-              if (field) {
-                acc[field[1]] = _t[0];
-              }
-              return acc;
-            }, {})
-          };
-          list[obj.name] = obj;
-          return list;
+            controls[control.name] = control;
+          });
+
+          return controls;
         }, {});
 
-        result[deviceName] = deviceResult;
-      }
+        result[deviceName] = deviceControls;
+      });
 
       globalEventEmitter.emit('gotAllControls');
-      res.json({ result: result, message: "Just got all controls" });
+      res.json({ result, message: 'Just got all controls' });
     } catch (error) {
       res.status(400).json({ code: error.code, detail: error.detail, message: error.detail });
     }
   });
+
 }

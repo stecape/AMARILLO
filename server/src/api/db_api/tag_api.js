@@ -16,7 +16,6 @@ export default function (app, pool) {
         queryString += ` AND var IN (${varIds.join(',')})`;
       }
 
-      console.log("Deleting tags with query: ", queryString);
       pool.query({
         text: queryString,
         rowMode: 'array',
@@ -33,30 +32,44 @@ export default function (app, pool) {
   };
 
   const _GenerateTags = (varId, deviceId, name, type, typesList, fieldsList, parent_tag) => {
-    // Verifica che fieldsList sia un array
-    if (!Array.isArray(fieldsList)) {
-      console.error("fieldsList is not an array:", fieldsList);
+  
+    // Filtra i campi figli per il tipo corrente
+    const childFields = fieldsList.filter((field) => field[3] === type);
+  
+    // Verifica che childFields sia un array
+    if (!Array.isArray(childFields) || childFields.length === 0) {
+      console.error("No child fields found or fieldsList is not an array for type:", type);
       return;
     }
-
+  
     // Itera attraverso i campi e genera le tag
-    fieldsList.filter(i => i[3] === type).forEach(f => {
-      var tagName = name + '.' + f[1];
-      var queryString = `INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment) VALUES (DEFAULT, '${tagName}', ${deviceId}, ${varId}, ${parent_tag}, ${f[0]}, ${f[4] !== undefined ? f[4] : 'NULL'}, ${f[5] !== undefined ? f[5] : 'NULL'}, ${f[6] !== undefined ? `'${f[6]}'` : 'NULL'}) RETURNING "id"`;
+    childFields.forEach((f) => {
+      const tagName = `${name}.${f[1]}`;
+      const queryString = `
+        INSERT INTO "Tag" (id, name, device, var, parent_tag, type_field, um, logic_state, comment)
+        VALUES (DEFAULT, '${tagName}', ${deviceId}, ${varId}, ${parent_tag}, ${f[0]},
+          ${f[4] !== undefined ? f[4] : 'NULL'},
+          ${f[5] !== undefined ? f[5] : 'NULL'},
+          ${f[6] !== undefined ? `'${f[6]}'` : 'NULL'})
+        RETURNING "id"
+      `;
+  
       pool.query({
         text: queryString,
-        rowMode: 'array'
+        rowMode: 'array',
       })
-      .then(data => {
-        var _base_type = typesList.find(i => i[0] === f[2]);
-        _base_type = _base_type[2];
-        if (!_base_type) {
-          _GenerateTags(varId, tagName, f[2], typesList, fieldsList, data.rows[0][0]);
-        }
-      })
-      .catch(error => {
-        console.error("Error generating tags:", error);
-      });
+        .then((data) => {
+          const newParentTagId = data.rows[0][0];
+          const _base_type = typesList.find((i) => i[0] === f[2])?.[2];
+  
+          // Se il campo è un tipo complesso, chiama ricorsivamente _GenerateTags
+          if (!_base_type) {
+            _GenerateTags(varId, deviceId, tagName, f[2], typesList, fieldsList, newParentTagId);
+          }
+        })
+        .catch((error) => {
+          console.error("Error generating tags:", error);
+        });
     });
   };
 
