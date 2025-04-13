@@ -166,7 +166,7 @@ export default function (app, pool) {
           const [varId, varName] = variable;
 
           // Filtra le tag associate alla variabile
-          const varTags = tags.filter((tag) => tag[3] === varId);
+          const varTags = tags.filter((tag) => tag[3] === varId && tag[2] === deviceId);
 
           // Costruisci i controlli per ogni tag
           varTags.forEach((tag) => {

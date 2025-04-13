@@ -23,37 +23,42 @@ function AlarmsList () {
   let alarmReactionFieldId = ctx.fields.find(t => t.parent_type === alarmTypeId && t.name==="Reaction")?.id || 0
   let alarmTsFieldId = ctx.fields.find(t => t.parent_type === alarmTypeId && t.name==="Ts")?.id || 0
 
-  // filtro le variabili di allarme
-  let alarmVars = ctx.vars.filter(t => t.type===alarmTypeId)
 
-  // creo un array di oggetti allarme come mi viene comodo
-  let alarms = alarmVars.map(al => {
-    let alarmVar = ctx.vars.find(alV => alV.name === al.name)
-    let alarmVarFields = ctx.tags.filter(alVarF => alVarF.var===alarmVar.id)
-    let alarm = {}
-    alarm.Name = alarmVar.name
-    alarm.Description = alarmVar.comment
-    alarm.Status = alarmVarFields.find(a => a.type_field===alarmStatusFieldId)?.value.value !== undefined ? alarmVarFields.find(a => a.type_field===alarmStatusFieldId).value.value : ""
-    alarm.Reaction = alarmVarFields.find(a => a.type_field===alarmReactionFieldId)?.value.value !== undefined ? alarmVarFields.find(a => a.type_field===alarmReactionFieldId).value.value : ""
-    let ts = alarmVarFields.find(a => a.type_field===alarmTsFieldId)
-    let utc_offset = ctx.devices.find(d => d.id === alarmVar.device).utc_offset
-    if (ts !== undefined && ts.value !== undefined && ts.value !== null) {
-      const date = new Date(ts.value.value + utc_offset); // Converti il timestamp in millisecondi
-      alarm.Ts = date.toLocaleString()
-    } else {
-      const date = new Date(0);
-      alarm.Ts = date.toLocaleString()
-    }
-    return alarm
+  // Semplificare il controllo utilizzando direttamente tag.type === alarmTypeId
+  let alarms = ctx.devices.map(device => {
+    // filtro le variabili di allarme del dispositivo corrente
+    let alarmVars = ctx.vars.filter(v => v.type === alarmTypeId && v.template === device.template);
+    let deviceAlarms = alarmVars.map(al => {
+      let alarm = {};
+      let alarmTags = ctx.tags.filter(t => t.var === al.id && t.device === device.id && t.type_field !== null);
+
+      alarm.Device = device.name;
+      alarm.Name = al.name;
+      alarm.Description = al.comment;
+      alarm.Reaction = alarmTags.find(t => t.type_field === alarmReactionFieldId)?.value?.value ?? "";
+      alarm.Status = alarmTags.find(t => t.type_field === alarmStatusFieldId)?.value?.value ?? "";
+
+      let ts = alarmTags.find(t => t.type_field === alarmTsFieldId);
+      let utc_offset = device.utc_offset || 0; // Usa l'offset UTC del dispositivo, se disponibile
+      console.log("device: ", device.name, "utc_offset: ", utc_offset)
+      ts !== undefined && ts.value !== undefined && ts.value !== null ?
+        alarm.Ts = new Date(Number(ts.value.value) + Number(utc_offset)).toLocaleString()
+        :
+        alarm.Ts = new Date(0).toLocaleString();
+
+      return alarm;
+    })
+    return { device: device.name, alarms: deviceAlarms };
   })
-
+  console.log("alarms: ", alarms)
   return(
     <>
       <TableContainer>
         <Table fullWidth>
           <TableHeader>
             <TableRow>
-              <TableCell hAlign="left">TimeStamp</TableCell>
+            <TableCell hAlign="left">Device</TableCell>
+            <TableCell hAlign="left" style={{ minWidth: '200px' }}>TimeStamp</TableCell>
               <TableCell hAlign="left" style={{ minWidth: '200px' }}>Name</TableCell>
               <TableCell hAlign="left" grow>Description</TableCell>
               <TableCell hAlign="center">Reaction</TableCell>
@@ -61,24 +66,27 @@ function AlarmsList () {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {alarms
-            .filter((alarm) => alarm.Status !== 0) // Filtra gli allarmi con Status diverso da 0
-            .sort((a, b) => {
-              const dateA = new Date(a.Ts).getTime()
-              const dateB = new Date(b.Ts).getTime()
-              return dateB - dateA // Ordina in ordine decrescente
-            })
-            .map((alarm) => {
-              return (
-                <TableRow key={alarm.Name}>
-                  <TableCell className={tableStyles.cell} hAlign="left">{alarm.Ts}</TableCell>
-                  <TableCell className={tableStyles.cell} hAlign="left">{alarm.Name}</TableCell>
-                  <TableCell className={tableStyles.cell} hAlign="left">{alarm.Description}</TableCell>
-                  <TableCell className={tableStyles.cell} hAlign="center">{alarm.Reaction}</TableCell>
-                  <TableCell className={tableStyles.cell} hAlign="center">{alarm.Status}</TableCell> 
-                </TableRow>
-              )
-            })}
+            {alarms.map(({ device, alarms }) => 
+              alarms
+              .filter((alarm) => alarm.Status) // Filtra gli allarmi con Status diverso da 0, "" o null
+              .sort((a, b) => {
+                const dateA = new Date(a.Ts).getTime()
+                const dateB = new Date(b.Ts).getTime()
+                return dateB - dateA // Ordina in ordine decrescente
+              })
+              .map((alarm) => {
+                return (
+                  <TableRow key={`${device}-${alarm.Name}`}>
+                    <TableCell className={tableStyles.cell} hAlign="left">{device}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="left">{alarm.Ts}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="left">{alarm.Name}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="left">{alarm.Description}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="center">{alarm.Reaction}</TableCell>
+                    <TableCell className={tableStyles.cell} hAlign="center">{alarm.Status}</TableCell> 
+                  </TableRow>
+                )
+              })
+            )}
           </TableBody>
         </Table>
       </TableContainer>
