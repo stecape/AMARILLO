@@ -242,6 +242,10 @@ export default function (client) {
       IF (SELECT COALESCE(MAX(id), 0) FROM public."Device") < 99 THEN
         PERFORM setval('public."Device_id_seq"', 100);
       END IF;
+
+      IF (SELECT COALESCE(MAX(id), 0) FROM public."Tag") < 99 THEN
+        PERFORM setval('public."Tag_id_seq"', 100);
+      END IF;
     END $$;
 
 
