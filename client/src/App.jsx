@@ -10,6 +10,7 @@ import Alarms from "./sections/Alarms/Alarms"
 import Tags from "./sections/Tags/Tags"
 import Controls from "./sections/Controls/Controls"
 import NoPage from "./sections/NoPage/NoPage"
+import Trend from "./sections/Trend/Trend"
 
 function App () {
   return (
@@ -25,6 +26,7 @@ function App () {
         <Route path="alarms" element={<Alarms/>} />
         <Route path="tags" element={<Tags/>} />
         <Route path="controls" element={<Controls/>} />
+        <Route path="trend" element={<Trend/>} />
         <Route path="*" element={<NoPage />} />
       </Routes>
     </NestedDialogContextProvider>

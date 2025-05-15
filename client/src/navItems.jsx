@@ -1,4 +1,5 @@
 import { HomeFontIcon, AllOutFontIcon, SettingsInputComponentFontIcon, DevicesOtherFontIcon, BatteryUnknownFontIcon, TransformFontIcon, ErrorFontIcon } from "@react-md/material-icons";
+import { ReactComponent as TrendSVGIcon } from "./sections/Trend/Trend.svg";
 
 /**
  * Note: The `parentId` **must** be defaulted to `null` for the navigation tree
@@ -31,6 +32,7 @@ const navItems = {
   "/alarms": createRoute("/alarms", "Alarms", <ErrorFontIcon />),
   "/tags": createRoute("/tags", "Tags", <SettingsInputComponentFontIcon />),
   "/controls": createRoute("/controls", "Controls", <SettingsInputComponentFontIcon />),
+  "/trend": createRoute("/trend", "Trend", <TrendSVGIcon />),
 };
 
 export default navItems;
