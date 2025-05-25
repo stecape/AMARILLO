@@ -1,4 +1,4 @@
-import { HomeFontIcon, AllOutFontIcon, SettingsInputComponentFontIcon, DevicesOtherFontIcon, BatteryUnknownFontIcon, TransformFontIcon, ErrorFontIcon } from "@react-md/material-icons";
+import { HomeFontIcon, AllOutFontIcon, SettingsInputComponentFontIcon, DevicesOtherFontIcon, BatteryUnknownFontIcon, TransformFontIcon, ErrorFontIcon, WhatshotSVGIcon } from "@react-md/material-icons";
 import { ReactComponent as TrendSVGIcon } from "./sections/Trend/Trend.svg";
 
 /**
@@ -33,6 +33,7 @@ const navItems = {
   "/tags": createRoute("/tags", "Tags", <SettingsInputComponentFontIcon />),
   "/controls": createRoute("/controls", "Controls", <SettingsInputComponentFontIcon />),
   "/trend": createRoute("/trend", "Trend", <TrendSVGIcon />),
+  "/oven": createRoute("/oven", "Oven", <WhatshotSVGIcon />),
 };
 
 export default navItems;

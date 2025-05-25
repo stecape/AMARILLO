@@ -20,7 +20,7 @@ function Controls() {
         <Act ctrl={ctx.controls.Paolo.BatteryLevel} />
       </GridCell>
       <GridCell colSpan={4} className={gridStyles.item}>
-        <Set ctrl={ctx.controls.Paolo.Temperature} />
+        <SetAct ctrl={ctx.controls.Paolo.Temperature} />
       </GridCell>
       <GridCell colSpan={4} className={gridStyles.item}>
         <SetAct ctrl={ctx.controls.Paolo.Pressure} />
@@ -32,7 +32,7 @@ function Controls() {
           <Act ctrl={ctx.controls.Stefano.BatteryLevel} />
         </GridCell>
         <GridCell colSpan={4} className={gridStyles.item}>
-          <Set ctrl={ctx.controls.Stefano.Temperature} />
+          <SetAct ctrl={ctx.controls.Stefano.Temperature} />
         </GridCell>
         <GridCell colSpan={4} className={gridStyles.item}>
           <SetAct ctrl={ctx.controls.Stefano.Pressure} />

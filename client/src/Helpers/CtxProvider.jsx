@@ -118,7 +118,7 @@ export const CtxProvider = ({ children }) => {
 
       
 
-      console.log("value: ", value)
+      //console.log("value: ", value)
       switch(value.table){
         //Type
         case "Type":

@@ -1,18 +1,37 @@
 import { useContext, useEffect, useState, useRef } from "react"; // Aggiunto useRef
 import { Grid, GridCell } from '@react-md/utils';
 import { Button } from "@react-md/button"
-import { Dialog, DialogContent, DialogFooter } from "@react-md/dialog"
+import { DialogContent, DialogFooter } from "@react-md/dialog"
 import { Typography } from "@react-md/typography";
 import {
   Form,
-  TextField,
   FormThemeProvider,
   Select
 } from '@react-md/form'
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import gridStyles from "../../styles/Grid.module.scss";
 import styles from "./Trend.module.scss";
 import { ctxData } from "../../Helpers/CtxProvider";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const MAX_BUFFER = 1000;
 
@@ -81,6 +100,46 @@ function Trend() {
     });
   }, [updateTrigger, isRecording, selectedTag]);
 
+  const chartData = {
+    labels: data.map((point) => point.time),
+    datasets: [
+      {
+        label: 'Value',
+        data: data.map((point) => point.value),
+        borderColor: 'rgb(199, 169, 38)',
+        backgroundColor: 'rgba(199, 169, 38, 0.2)',
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Trend Data',
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Time',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Value',
+        },
+      },
+    },
+  };
+
   return (
     <Grid>
       <GridCell colSpan={12} className={gridStyles.item}>
@@ -94,33 +153,33 @@ function Trend() {
           Trend
         </Typography>
 
-        <FormThemeProvider theme='outline'>
+        <FormThemeProvider theme="outline">
           <Form>
             <DialogContent>
               <Select
-                id='tag'
-                key='tag'
+                id="tag"
+                key="tag"
                 options={tags.map((item) => ({
                   label: item.name,
-                  value: item.id
+                  value: item.id,
                 }))}
                 value={selectedTag?.id.toString() || ''}
                 label="Tag"
-                onChange={value => {
-                  const t = tags.find(t => t.id === Number(value));
+                onChange={(value) => {
+                  const t = tags.find((t) => t.id === Number(value));
                   setSelectedTag(t);
                 }}
               />
               <Select
-                id='interval'
-                key='interval'
+                id="interval"
+                key="interval"
                 options={intervalOptions.map((item) => ({
                   label: item.label,
-                  value: item.value
+                  value: item.value,
                 }))}
                 value={interval !== null && interval.toString()}
                 label="Interval"
-                onChange={value => setIntervalMs(Number(value))}
+                onChange={(value) => setIntervalMs(Number(value))}
               />
             </DialogContent>
             <DialogFooter>
@@ -141,20 +200,8 @@ function Trend() {
             </DialogFooter>
           </Form>
         </FormThemeProvider>
-        <div>
-          {/* {containerReady && (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" minTickGap={40} />
-                <YAxis allowDecimals domain={['auto', 'auto']} />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="#1976d2" dot={false} isAnimationActive={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          )} */
-          JSON.stringify({data: data[data.length - 1], index: data.length - 1})
-          }
+        <div style={{ width: '100%', height: '700px' }}>
+          <Line data={chartData} options={chartOptions} />
         </div>
       </GridCell>
     </Grid>

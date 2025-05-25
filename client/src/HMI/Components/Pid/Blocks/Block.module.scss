@@ -1,0 +1,21 @@
+.blockGroup {
+  color: var(--rmd-theme-primary);
+  fill: var(--rmd-theme-primary);
+  stroke: var(--rmd-theme-primary);
+  stroke-width: 3; 
+  cursor: pointer;
+}
+.blockLabel {
+  fill: var(--rmd-theme-primary);
+  font-family: inherit;
+}
+.blockValue {
+  fill: var(--rmd-theme-primary);
+  font-family: inherit;
+}
+
+.line {
+    color: var(--rmd-theme-primary);
+    fill: var(--rmd-theme-primary);
+    stroke: var(--rmd-theme-primary);
+}

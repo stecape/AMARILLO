@@ -11,6 +11,7 @@ import Tags from "./sections/Tags/Tags"
 import Controls from "./sections/Controls/Controls"
 import NoPage from "./sections/NoPage/NoPage"
 import Trend from "./sections/Trend/Trend"
+import Oven from "./sections/Oven/Oven"
 
 function App () {
   return (
@@ -27,6 +28,7 @@ function App () {
         <Route path="tags" element={<Tags/>} />
         <Route path="controls" element={<Controls/>} />
         <Route path="trend" element={<Trend/>} />
+        <Route path="/oven" element={<Oven />} />
         <Route path="*" element={<NoPage />} />
       </Routes>
     </NestedDialogContextProvider>

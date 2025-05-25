@@ -21,7 +21,7 @@ function Set(props) {
   const ctx = useContext(ctxData)
   
   // Controlla se ctx.controls esiste
-  if (ctx.controls === undefined || Object.keys(ctx.controls).length === 0) {
+  if (props.ctrl === undefined || ctx.controls === undefined || Object.keys(ctx.controls).length === 0) {
     return null // Non renderizzare nulla se ctx.controls non esiste
   }
 
