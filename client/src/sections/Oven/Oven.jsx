@@ -8,6 +8,7 @@ import LogicSelection from "../../HMI/Components/LogicSelection/LogicSelection";
 import Set from "../../HMI/Components/Set/Set";
 import Act from "../../HMI/Components/Act/Act";
 import Pid from "../../HMI/Components/Pid/Pid";
+import Profile from "../../HMI/Components/Profile/Profile";
 
 import gridStyles from "../../styles/Grid.module.scss";
 import styles from "./Oven.module.scss";
@@ -30,9 +31,11 @@ function Oven() {
           <GridCell colSpan={4} className={gridStyles.item}>
             <Set ctrl={ctx.controls.Forno.TemperatureReference} label="Temperature Reference" />
           </GridCell>
-          <GridCell colSpan={4} className={gridStyles.item}>
-            <Set ctrl={ctx.controls.Forno.Profile} label="Profile" />
+          {/* Profile Section */}
+          <GridCell colSpan={12} className={gridStyles.item}>
+            <Profile ctrl={ctx.controls.Forno?.PID} label="PID" />
           </GridCell>
+          {/* Fine Profile Section */}
           <GridCell colSpan={4} className={gridStyles.item}>
             <Act ctrl={ctx.controls.Forno?.ActualTemperature} label="Actual Temperature" />
           </GridCell>

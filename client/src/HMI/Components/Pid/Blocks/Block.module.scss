@@ -2,16 +2,25 @@
   color: var(--rmd-theme-primary);
   fill: var(--rmd-theme-primary);
   stroke: var(--rmd-theme-primary);
-  stroke-width: 3; 
-  cursor: pointer;
+  stroke-width: 2;
 }
 .blockLabel {
   fill: var(--rmd-theme-primary);
   font-family: inherit;
+  font-size: large;
 }
 .blockValue {
   fill: var(--rmd-theme-primary);
   font-family: inherit;
+  font-size: large;
+}
+.blockContent {
+  fill: var(--rmd-theme-primary);
+  font-family: 'Noto Sans', 'Arial', 'Verdana', 'Segoe UI', 'sans-serif' !important;
+  font-size: 1.7em;
+  font-weight: 300 !important;
+  font-style: normal !important;
+  letter-spacing: 0;
 }
 
 .line {

@@ -3,23 +3,17 @@ import PropTypes from 'prop-types'
 import styles from "./Block.module.scss";
 
 
-export default function TestPoint({
+export default function Saturation({
   x = 0,
   y = 0,
   light = false,
-  textPosOffsetX = 48*7/10,
-  textPosOffsetY = 0,
-  value = "",
   anchor = 'left',
-  label = "",
   ...props
 }) {
   const [lightState, setLight] = useState(light);
-  const [valueState, setValue] = useState(value);
-
   // Block size
-  const width = 48;
-  const height = 48;
+  const width = 96;
+  const height = 96;
   
   // Calculate top-left corner based on anchor
   let offsetX = x, offsetY = y;
@@ -58,41 +52,18 @@ export default function TestPoint({
       <defs>
         <g id={ID}>
           <rect width={width} height={height} rx={8} fill="transparent" />
-          { 
-            props.content ?
-              <text 
-                x={width/2} 
-                y={height/2 + 2} 
-                textAnchor="middle" 
-                dominantBaseline="middle" 
-                className={styles.blockContent}
-              >
-                {props.content}
-              </text>
-            :
-              (<>
-                <line x1={width/4} y1={height/4} x2={3*width/4} y2={3*height/4} />
-                <line x1={width/4} y1={3*height/4} x2={3*width/4} y2={height/4} />
-              </>)
-          }
+          <line x1={width/8} y1={height*6/8} x2={width*3/8} y2={height*6/8} />
+          <line x1={width*3/8} y1={height*6/8} x2={width*5/8} y2={height*2/8} />
+          <line x1={width*5/8} y1={height*2/8} x2={width*7/8} y2={height*2/8} />
         </g>
       </defs>
       <use href={`#${ID}`} x={x} y={y} width={width} height={height} className={styles.blockGroup}/>
-      <text x={x + textPosOffsetX} y={y+ height/6*8 + textPosOffsetY} className={styles.blockValue}>{valueState}</text>
-      <text x={x + textPosOffsetX} y={y - height/5 + textPosOffsetY} className={styles.blockLabel}>{label}</text>
     </g>
   )
 }
 
-TestPoint.propTypes = {
+Saturation.propTypes = {
   x: PropTypes.number,
   y: PropTypes.number,
-  light: PropTypes.bool,
-  textPosOffsetX: PropTypes.number,
-  textPosOffsetY: PropTypes.number,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.bool
-  ]),
-  label: PropTypes.string
+  light: PropTypes.bool
 }
