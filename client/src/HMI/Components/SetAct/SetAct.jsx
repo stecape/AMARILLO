@@ -8,6 +8,7 @@ import styles from "./SetAct.module.scss"
 import { ctxData } from "../../../Helpers/CtxProvider"
 import axios from 'axios'
 import Bar from "../Bar/Bar"
+import SetPopup from "../SetPopup/SetPopup"
 
 
 function SetAct(props) {

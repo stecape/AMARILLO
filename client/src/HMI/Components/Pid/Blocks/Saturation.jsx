@@ -7,8 +7,7 @@ export default function Saturation({
   x = 0,
   y = 0,
   light = false,
-  anchor = 'left',
-  ...props
+  anchor = 'left'
 }) {
   const [lightState, setLight] = useState(light);
   // Block size

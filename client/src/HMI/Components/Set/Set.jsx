@@ -1,13 +1,13 @@
 import { useState, useContext } from "react"
 import { GridCell } from '@react-md/utils'
 import { Typography } from "@react-md/typography"
-import { Dialog, DialogContent, DialogFooter } from "@react-md/dialog"
 import { Button } from "@react-md/button"
 import { TextField } from "@react-md/form"
 import styles from "./Set.module.scss"
 import { ctxData } from "../../../Helpers/CtxProvider"
 import axios from 'axios'
 import Bar from "../Bar/Bar"
+import SetPopup from "../SetPopup/SetPopup"
 
 
 function Set(props) {
@@ -98,40 +98,17 @@ function Set(props) {
       </GridCell>
 
       {/* Popup dialog */}
-      <Dialog
-        id="set-dialog"
-        visible={isDialogVisible}
-        onRequestClose={closeDialog}
-        aria-labelledby="set-dialog-title"
-      >
-        <DialogContent>
-          <Typography id="set-dialog-title" type="headline-6" margin="none">
-            {device} - {props.ctrl.name}
-          </Typography>
-          <TextField
-            id="set-input"
-            label="Set value"
-            type="number"
-            value={inputValue}
-            onChange={(e) => setInputValue(Number(e.target.value) || 0)}
-            min={min}
-            max={max}
-            className={styles.dialogInput}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                confirmValue(); // Conferma il valore quando viene premuto Enter
-              }
-            }}
-          />
-          <Bar set={inputValue} min={min} max={max} />
-        </DialogContent>
-        <DialogFooter>
-          <Button onClick={closeDialog}>Cancel</Button>
-          <Button onClick={confirmValue} theme="primary">
-            Set
-          </Button>
-        </DialogFooter>
-      </Dialog>
+      <SetPopup
+        isDialogVisible={isDialogVisible}
+        confirmValue={confirmValue}
+        closeDialog={closeDialog}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        min={min}
+        max={max}
+        device={device}
+        ctrlName={props.ctrl.name}
+      />
     </>
   )
 }

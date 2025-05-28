@@ -1,7 +1,5 @@
 import React, { useContext } from "react";
 import { Grid, GridCell } from '@react-md/utils';
-import { Typography } from "@react-md/typography";
-import { WhatshotSVGIcon } from "@react-md/material-icons";
 
 import { ctxData } from "../../Helpers/CtxProvider";
 import LogicSelection from "../../HMI/Components/LogicSelection/LogicSelection";

@@ -18,6 +18,7 @@ import {
   Legend,
 } from "chart.js";
 import Bar from "../Bar/Bar";
+import SetPopup from "../SetPopup/SetPopup";
 
 ChartJS.register(
   CategoryScale,
