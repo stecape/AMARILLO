@@ -1,25 +1,13 @@
-import React, { useContext, useState } from "react";
+import { useContext } from "react";
 import { ctxData } from "../../../Helpers/CtxProvider";
-import Set from "../Set/Set";
 import Connector from "./Connector";
 import TestPoint from "./Blocks/TestPoint";
 import Saturation from "./Blocks/Saturation";
 import styles from "./Pid.module.scss";
 
-function Pid({ ctrl, label }) {
+function Pid({ ctrl }) {
   const ctx = useContext(ctxData);
-  const [setPopup, setSetPopup] = useState(null); // quale campo mostrare come popup
   if (!ctrl || !ctrl.fields) return null;
-
-  // Trova il prefisso dinamico (es: "PID.", "LOOP.", ecc.)
-  const prefix = ctrl.name+".";
-
-  // Funzione per aprire il popup Set
-  const handleSetClick = (key) => setSetPopup(key);
-  const handleClose = () => setSetPopup(null);
-
-  // Mappa dei campi impostabili (Set)
-  const settable = ["kP", "Ti", "Td", "Gp", "PidMin", "PidMax", "OutMin", "OutMax"];
 
   // Recupera valore da tag
   const getValue = (key) => {
@@ -27,9 +15,6 @@ function Pid({ ctrl, label }) {
     const tag = ctx.tags.find(t => t.id === id);
     return tag?.value?.value ?? '-';
   };
-
-  // Recupera oggetto controllo per Set
-  const getSetCtrl = (key) => ctx.controls[`${prefix}.${key}`];
 
   // Configurazione PID diagram (esempio base)
   const config = {
@@ -74,24 +59,24 @@ function Pid({ ctrl, label }) {
         <g transform="scale(0.5) translate(0, 100)">
           <g transform="translate(50, 50)">
             {/* Blocchi PID */}
-            <TestPoint label="E" value={getValue("E")} {...E} />
-            <TestPoint label="kP" value={getValue("kP")} {...kP} onClick={() => handleSetClick("kP")} />
-            <TestPoint label="kPE" value={getValue("kPE")} {...kPE} onClick={() => handleSetClick("kPE")} />
-            <TestPoint label="dC" value={getValue("dC")} {...dC} />
-            <TestPoint label="Td" value={getValue("Td")} {...Td} onClick={() => handleSetClick("Td")} />
-            <TestPoint label="Gp" value={getValue("Gp")} {...Gp} onClick={() => handleSetClick("Gp")} />
-            <TestPoint label="pC" value={getValue("pC")} {...pC} />
-            <TestPoint label="Ti" value={getValue("Ti")} {...Ti} onClick={() => handleSetClick("Ti")} />
-            <TestPoint label="iC" value={getValue("iC")} {...iC} onClick={() => handleSetClick("iC")} />
-            <TestPoint label="C" value={getValue("C")} {...C} />
+            <TestPoint label="E" value={getValue("E")} {...E}/>
+            <TestPoint label="kP" value={getValue("kP")} {...kP} Set={ctx.controls.Forno["PID.kP"]}/>
+            <TestPoint label="kPE" value={getValue("kPE")} {...kPE}/>
+            <TestPoint label="dC" value={getValue("dC")} {...dC}/>
+            <TestPoint label="Td" value={getValue("Td")} {...Td}/>
+            <TestPoint label="Gp" value={getValue("Gp")} {...Gp}/>
+            <TestPoint label="pC" value={getValue("pC")} {...pC}/>
+            <TestPoint label="Ti" value={getValue("Ti")} {...Ti}/>
+            <TestPoint label="iC" value={getValue("iC")} {...iC}/>
+            <TestPoint label="C" value={getValue("C")} {...C}/>
             <Saturation {...PidSat} />
-            <TestPoint label="PidMax" value={getValue("PidMax")} {...PidMin} onClick={() => handleSetClick("PidMax")} />
-            <TestPoint label="PidMin" value={getValue("PidMin")} {...PidMax} onClick={() => handleSetClick("PidMin")} />
+            <TestPoint label="PidMax" value={getValue("PidMax")} {...PidMin}/>
+            <TestPoint label="PidMin" value={getValue("PidMin")} {...PidMax}/>
             <TestPoint label="Reference" value={getValue("Reference")} {...Reference} />
             <TestPoint label="RawOut" value={getValue("RawOut")} {...RawOut} />
             <Saturation {...OutSat} />
-            <TestPoint label="OutMax" value={getValue("OutMax")} {...OutMax} onClick={() => handleSetClick("OutMax")} />
-            <TestPoint label="OutMin" value={getValue("OutMin")} {...OutMin} onClick={() => handleSetClick("OutMin")} />
+            <TestPoint label="OutMax" value={getValue("OutMax")} {...OutMax}/>
+            <TestPoint label="OutMin" value={getValue("OutMin")} {...OutMin}/>
             <TestPoint label="Out" value={getValue("Out")} {...Out} />
 
             {/* Connectors for PID logic (nuovo formato) */}
@@ -142,10 +127,6 @@ function Pid({ ctrl, label }) {
           </g>
         </g>
       </svg>
-      {/* Popup Set dinamico */}
-      {setPopup && getSetCtrl(setPopup) && (
-        <Set ctrl={getSetCtrl(setPopup)} label={setPopup} onClose={handleClose} open />
-      )}
     </div>
   );
 }
