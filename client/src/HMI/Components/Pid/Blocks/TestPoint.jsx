@@ -9,15 +9,15 @@ export default function TestPoint({
   light = false,
   textPosOffsetX = 48*7/10,
   textPosOffsetY = 0,
-  value = "",
+  value = 0,
   anchor = 'left',
   label = "",
   Set = undefined,
+  onSetClick = undefined,
   ...props
 }) {
   const [lightState, setLight] = useState(light);
   const [valueState, setValue] = useState(value);
-  const [showSetPopup, setShowSetPopup] = useState(false);
 
   // Block size
   const width = 48;
@@ -50,6 +50,10 @@ export default function TestPoint({
   useEffect(() => {
     setLight(light);
   }, [light]);
+
+  useEffect(() => {
+    setValue(value);
+  }, [value]);
 
 
 
@@ -88,10 +92,9 @@ export default function TestPoint({
         </g>
       </defs>
       <use href={`#${ID}`} x={x} y={y} width={width} height={height} className={Set ? styles.blockGroup + ' ' + styles.clickable : styles.blockGroup}
-        style={Set ? { cursor: 'pointer' } : {}} onClick={Set ? () => setShowSetPopup(true) : undefined} />
-      <text x={x + textPosOffsetX} y={y+ height/6*8 + textPosOffsetY} className={styles.blockValue}>{valueState}</text>
+        style={Set ? { cursor: 'pointer' } : {}} onClick={Set && onSetClick ? onSetClick : undefined} />
+      <text x={x + textPosOffsetX} y={y+ height/6*9 + textPosOffsetY} className={styles.blockValue}>{valueState}</text>
       <text x={x + textPosOffsetX} y={y - height/5 + textPosOffsetY} className={styles.blockLabel}>{label}</text>
-      {Set && showSetPopup && <Set {...Set} onClose={() => setShowSetPopup(false)} open={showSetPopup} />}
     </g>
   )
 }
@@ -103,6 +106,7 @@ TestPoint.propTypes = {
   textPosOffsetX: PropTypes.number,
   textPosOffsetY: PropTypes.number,
   value: PropTypes.oneOfType([
+    PropTypes.number,
     PropTypes.string,
     PropTypes.bool
   ]),

@@ -1,8 +1,6 @@
 import { useState, useContext } from "react"
 import { GridCell } from '@react-md/utils'
 import { Typography } from "@react-md/typography"
-import { Button } from "@react-md/button"
-import { TextField } from "@react-md/form"
 import styles from "./Set.module.scss"
 import { ctxData } from "../../../Helpers/CtxProvider"
 import axios from 'axios'

@@ -1,13 +1,22 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ctxData } from "../../../Helpers/CtxProvider";
 import Connector from "./Connector";
 import TestPoint from "./Blocks/TestPoint";
 import Saturation from "./Blocks/Saturation";
+import axios from 'axios'
+import SetPopup from "../SetPopup/SetPopup";
 import styles from "./Pid.module.scss";
 
 function Pid({ ctrl }) {
+  // Usa la variabile d'ambiente per configurare l'URL del server
+  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  
+  // Stato per gestire la visibilità del popup
+  const [isDialogVisible, setDialogVisible] = useState(false)
+  const [inputValue, setInputValue] = useState("")
+  const [setPopup, setSetPopup] = useState(null);
+
   const ctx = useContext(ctxData);
-  if (!ctrl || !ctrl.fields) return null;
 
   // Recupera valore da tag
   const getValue = (key) => {
@@ -46,6 +55,30 @@ function Pid({ ctrl }) {
   const OutMin = { x: OutSat.x + 0.5*config.blockWidth, y: RawOut.y + config.blockDistanceY, anchor: "left", label: "OutMin"};
   const Out = { x: OutSat.x + 2*config.blockDistanceX, y: OutSat.y, anchor: "left", label: "Out"}
 
+  // Funzione per aprire il popup
+  const handleSetClick = (setProps, label, value) => {
+    if (!setProps) return;
+    // Estrai parametri per SetPopup
+    const min = setProps.min ?? null;
+    const max = setProps.max ?? null;
+    const device = ctx.devices.find(d => d.id === setProps.device)?.name || "Unknown Device"
+    const ctrlName = setProps.name ?? label;
+    setSetPopup({ min, max, device, ctrl: setProps, ctrlName, value, label });
+    setInputValue(value);
+    setDialogVisible(true);
+  };
+
+  // Funzione per chiudere il popup
+  const closeDialog = () => {
+    setDialogVisible(false)
+  }
+
+  // Funzione per confermare il nuovo valore
+  const confirmValue = () => {
+    axios.post(`${serverIp}/api/mqtt/write`, { device: setPopup.device, id: setPopup.ctrl.fields.InputValue, value: inputValue })
+    closeDialog()
+  }
+
   return (
     <div className={styles.pidBlockWrapper} style={{ overflow: 'auto' }}>
       <svg
@@ -60,23 +93,23 @@ function Pid({ ctrl }) {
           <g transform="translate(50, 50)">
             {/* Blocchi PID */}
             <TestPoint label="E" value={getValue("E")} {...E}/>
-            <TestPoint label="kP" value={getValue("kP")} {...kP} Set={ctx.controls.Forno["PID.kP"]}/>
-            <TestPoint label="kPE" value={getValue("kPE")} {...kPE}/>
-            <TestPoint label="dC" value={getValue("dC")} {...dC}/>
-            <TestPoint label="Td" value={getValue("Td")} {...Td}/>
-            <TestPoint label="Gp" value={getValue("Gp")} {...Gp}/>
-            <TestPoint label="pC" value={getValue("pC")} {...pC}/>
-            <TestPoint label="Ti" value={getValue("Ti")} {...Ti}/>
-            <TestPoint label="iC" value={getValue("iC")} {...iC}/>
-            <TestPoint label="C" value={getValue("C")} {...C}/>
+            <TestPoint label="kP" value={getValue("PID.kP.Set.Value")} {...kP} Set={ctx.controls.Forno["PID.kP"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.kP"], "kP", getValue("kP"))}/>
+            <TestPoint label="kPE" value={getValue("kpError")} {...kPE}/>
+            <TestPoint label="Td" value={getValue("PID.Td.Set.Value")} {...Td} Set={ctx.controls.Forno["PID.Td"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.Td"], "Td", getValue("Td"))}/>
+            <TestPoint label="dC" value={getValue("DerivativeCorrection")} {...dC}/>
+            <TestPoint label="Gp" value={getValue("PID.Gp.Set.Value")} {...Gp} Set={ctx.controls.Forno["PID.Gp"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.Gp"], "Gp", getValue("Gp"))}/>
+            <TestPoint label="pC" value={getValue("ProportionalCorrection")} {...pC}/>
+            <TestPoint label="Ti" value={getValue("PID.Ti.Set.Value")} {...Ti} Set={ctx.controls.Forno["PID.Ti"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.Ti"], "Ti", getValue("Ti"))}/>
+            <TestPoint label="iC" value={getValue("IntegralCorrection")} {...iC}/>
+            <TestPoint label="C" value={getValue("PID.Correction")} {...C}/>
             <Saturation {...PidSat} />
-            <TestPoint label="PidMax" value={getValue("PidMax")} {...PidMin}/>
-            <TestPoint label="PidMin" value={getValue("PidMin")} {...PidMax}/>
+            <TestPoint label="PidMax" value={getValue("PidMax")} {...PidMax} Set={ctx.controls.Forno["PID.PidMax"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.PidMax"], "PidMax", getValue("PidMax"))}/>
+            <TestPoint label="PidMin" value={getValue("PidMin")} {...PidMin} Set={ctx.controls.Forno["PID.PidMin"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.PidMin"], "PidMin", getValue("PidMin"))}/>
             <TestPoint label="Reference" value={getValue("Reference")} {...Reference} />
             <TestPoint label="RawOut" value={getValue("RawOut")} {...RawOut} />
             <Saturation {...OutSat} />
-            <TestPoint label="OutMax" value={getValue("OutMax")} {...OutMax}/>
-            <TestPoint label="OutMin" value={getValue("OutMin")} {...OutMin}/>
+            <TestPoint label="OutMax" value={getValue("OutMax")} {...OutMax} Set={ctx.controls.Forno["PID.OutMax"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.OutMax"], "OutMax", getValue("OutMax"))}/>
+            <TestPoint label="OutMin" value={getValue("OutMin")} {...OutMin} Set={ctx.controls.Forno["PID.OutMin"]} onSetClick={() => handleSetClick(ctx.controls.Forno["PID.OutMin"], "OutMin", getValue("OutMin"))}/>
             <TestPoint label="Out" value={getValue("Out")} {...Out} />
 
             {/* Connectors for PID logic (nuovo formato) */}
@@ -127,6 +160,21 @@ function Pid({ ctrl }) {
           </g>
         </g>
       </svg>
+      {setPopup && (
+        <SetPopup
+          isDialogVisible={isDialogVisible}
+          confirmValue={confirmValue}
+          closeDialog={closeDialog}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          min={setPopup.min}
+          max={setPopup.max}
+          device={setPopup.device}
+          ctrlName={setPopup.ctrlName}
+          value={setPopup.value}
+          label={setPopup.label}
+        />
+      )}
     </div>
   );
 }

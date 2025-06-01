@@ -31,7 +31,7 @@ function Oven() {
           </GridCell>
           {/* Profile Section */}
           <GridCell colSpan={12} className={gridStyles.item}>
-            <Profile ctrl={ctx.controls.Forno?.PID} label="PID" />
+            <Profile ctrl={ctx.controls.Forno.Profile} label="Profile" />
           </GridCell>
           {/* Fine Profile Section */}
           <GridCell colSpan={4} className={gridStyles.item}>
