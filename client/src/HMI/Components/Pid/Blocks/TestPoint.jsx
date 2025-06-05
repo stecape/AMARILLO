@@ -52,7 +52,12 @@ export default function TestPoint({
   }, [light]);
 
   useEffect(() => {
-    setValue(value);
+    // Tronca il valore a massimo 4 decimali se è un numero
+    if (typeof value === 'number') {
+      setValue(Number(value.toFixed(4)));
+    } else {
+      setValue(value);
+    }
   }, [value]);
 
 
@@ -72,7 +77,7 @@ export default function TestPoint({
       <defs>
         <g id={ID}>
           <rect width={width} height={height} rx={8} fill="transparent" />
-          {Set ? TriangleBarIcon : (
+          {onSetClick ? TriangleBarIcon : (
             props.content ?
               <text 
                 x={width/2} 
@@ -91,8 +96,8 @@ export default function TestPoint({
           )}
         </g>
       </defs>
-      <use href={`#${ID}`} x={x} y={y} width={width} height={height} className={Set ? styles.blockGroup + ' ' + styles.clickable : styles.blockGroup}
-        style={Set ? { cursor: 'pointer' } : {}} onClick={Set && onSetClick ? onSetClick : undefined} />
+      <use href={`#${ID}`} x={x} y={y} width={width} height={height} className={onSetClick ? styles.blockGroup + ' ' + styles.clickable : styles.blockGroup}
+        style={onSetClick ? { cursor: 'pointer' } : {}} onClick={onSetClick ? onSetClick : undefined} />
       <text x={x + textPosOffsetX} y={y+ height/6*9 + textPosOffsetY} className={styles.blockValue}>{valueState}</text>
       <text x={x + textPosOffsetX} y={y - height/5 + textPosOffsetY} className={styles.blockLabel}>{label}</text>
     </g>

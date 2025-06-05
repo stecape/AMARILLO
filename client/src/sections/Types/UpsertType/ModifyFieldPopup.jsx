@@ -17,7 +17,7 @@ function ModifyFieldPopup (props) {
   //Input Validation
   const InlineValidation = (value) => {
     let pattern = /[^A-Za-z0-9\-_<> ]/g
-    setModalState((prevState) => ({ ...prevState, name: value, fieldNameNotValid: pattern.test(value) || props.fields.find(i => i.name === value && i.QRef !== props.QRef) || value === ""}))
+    setModalState((prevState) => ({ ...prevState, name: value, fieldNameNotValid: pattern.test(value) || props.fields.find(i => i.name === value && i.QRef !== props.QRef) || value === ''}))
   }
   
   //Form Events

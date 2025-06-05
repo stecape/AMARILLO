@@ -57,14 +57,14 @@ function FieldsList () {
           ...prevState,
           updateQuery: [
             ...upsertType.updateQuery, 
-            {query: `UPDATE "Field" SET name='${data.name}', type=${data.type}, um=${data.um !== 0 ? data.um : 'NULL'}, logic_state=${data.logic_state !== 0 ? data.logic_state : 'NULL'}, comment='${data.comment !== null ? `'${data.comment}'` : ''}' WHERE name = '${modifyFieldPopup.name}' AND parent_type = typeId;`, QRef: fieldToUpdate.QRef}
+            {query: `UPDATE "Field" SET name='${data.name}', type=${data.type}, um=${data.um !== 0 ? data.um : 'NULL'}, logic_state=${data.logic_state !== 0 ? data.logic_state : 'NULL'}, comment=${data.comment === null ? 'NULL' : data.comment === '' ? "''" : `'${data.comment.replace(/'/g, "''")}'`} WHERE name = '${modifyFieldPopup.name}' AND parent_type = typeId;`, QRef: fieldToUpdate.QRef}
           ],
           fields: fields
         }), setModifyFieldPopup((prevState) => ({ ...prevState, visible: false })))
       } else {
         //the field is in the insert list. The field has been inserted this round, so it is possible to update the insert query
         newQuery = upsertType.insertQuery
-        newQuery[newQuery.findIndex(i => i.QRef===fieldToUpdate.QRef)] = {query: `INSERT INTO "Field" (id, name, type, um, logic_state, comment, parent_type) VALUES (DEFAULT, '${fieldToUpdate.name}', ${fieldToUpdate.type}, ${fieldToUpdate.um !== 0 ? fieldToUpdate.um : 'NULL'}, ${fieldToUpdate.logic_state !== 0 ? fieldToUpdate.logic_state : 'NULL'}, '${fieldToUpdate.comment !== null ? `'${fieldToUpdate.comment}'` : ''}', typeId);`, QRef: fieldToUpdate.QRef} 
+        newQuery[newQuery.findIndex(i => i.QRef===fieldToUpdate.QRef)] = {query: `INSERT INTO "Field" (id, name, type, um, logic_state, comment, parent_type) VALUES (DEFAULT, '${fieldToUpdate.name}', ${fieldToUpdate.type}, ${fieldToUpdate.um !== 0 ? fieldToUpdate.um : 'NULL'}, ${fieldToUpdate.logic_state !== 0 ? fieldToUpdate.logic_state : 'NULL'}, ${fieldToUpdate.comment === null ? 'NULL' : fieldToUpdate.comment === '' ? "''" : `'${fieldToUpdate.comment.replace(/'/g, "''")}'`}, typeId);`, QRef: fieldToUpdate.QRef} 
         setUpsertType((prevState) => ({
           ...prevState,
           insertQuery: newQuery,

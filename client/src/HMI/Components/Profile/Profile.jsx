@@ -81,6 +81,10 @@ function Profile(props) {
   const value_5_Set_Parent_Ctrl = Object.values(ctx.controls[device]).find(control => control.id === valuesCtrl.fields._5)
   const value_5_Set_Ctrl = Object.values(ctx.controls[device]).find(control => control.id === value_5_Set_Parent_Ctrl.fields.Set)
   const value_5_value = ctx.tags.find(t => t.id === value_5_Set_Ctrl.fields.Value)?.value?.value || 0;
+  const output_Actual_Parent_Ctrl = Object.values(ctx.controls[device]).find(control => control.id === props.ctrl.fields.Output)
+  const output_Actual_Ctrl = Object.values(ctx.controls[device]).find(control => control.id === output_Actual_Parent_Ctrl.fields.Act)
+  const output_value_raw = ctx.tags.find(t => t.id === output_Actual_Ctrl.fields.HMIValue)?.value?.value || 0;
+  const output_value = typeof output_value_raw === 'number' ? output_value_raw.toFixed(2) : output_value_raw;
 
   // Chart data (x: time, y: value)
   const chartData = {
@@ -143,8 +147,6 @@ function Profile(props) {
       max: max,
       inputValueId: setCtrl.fields.InputValue,
     });
-    console.log("Opening dialog for control:", ctrl.name, "with device:", device);
-    console.log("setCtrl:", setCtrl)
     setDialogVisible(true);
   };
 
@@ -217,6 +219,13 @@ function Profile(props) {
                 </span>
                 <span style={{ cursor: "pointer", color: "#c7a926" }} onClick={() => openDialog(value_5_Set_Parent_Ctrl)}>
                   {value_5_value} <span style={{ fontSize: 12, color: "#888" }}>°C</span>
+                </span>
+              </div>
+              {/* Output profile value */}
+              <div key="profile_output" style={{ display: "flex", gap: "2rem", alignItems: "center", marginTop: '1.5rem' }}>
+                <span style={{ minWidth: 60, fontWeight: 300, fontSize: "1.5rem" }}>Output</span>
+                <span style={{ color: '#f0f0f0', fontWeight: 300, fontSize: "1.5rem" }}>
+                  {output_value ?? '-'} <span style={{ fontSize: 18, color: "#888" }}>°C</span>
                 </span>
               </div>
           </div>
