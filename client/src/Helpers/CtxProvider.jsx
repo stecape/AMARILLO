@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, createContext, useMemo } from '
 import { useAddMessage } from "@react-md/alert"
 import { SocketContext } from './socket'
 import axios from 'axios'
+import { getApiUrl } from './config'
 
 // Usa la variabile d'ambiente per configurare l'URL del server
 
@@ -9,7 +10,7 @@ export const ctxData = createContext()
 
 export const CtxProvider = ({ children }) => {
   
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const addMessage = useAddMessage()
   const socket = useContext(SocketContext)
   const [types, setTypes] = useState([])

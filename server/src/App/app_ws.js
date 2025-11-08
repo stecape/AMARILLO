@@ -15,10 +15,13 @@ const app_ws = () => {
   server = createServer(app)
 
   //socket.io WebSocket creation and running on the http server
-  const io = new Server(server, { cors: { 
-    origin: ['http://localhost', 'http://localhost:80'],
-    credentials: true
-  } })
+  const io = new Server(server, { 
+    path: '/socket.io',
+    cors: { 
+      origin: true,
+      credentials: true
+    } 
+  })
   io.on('connect', s => {
     console.log('socket.io connection', s.id)
     s.on("error", (err) => console.log("Caught socket error: ", err))

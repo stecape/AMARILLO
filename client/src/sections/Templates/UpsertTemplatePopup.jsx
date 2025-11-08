@@ -11,10 +11,11 @@ import gridStyles from '../../styles/Grid.module.scss'
 import formStyles from '../../styles/Form.module.scss'
 import axios from 'axios'
 import { UpsertTemplateContext } from './UpsertTemplate/UpsertTemplateContext'
+import { getApiUrl } from '../../Helpers/config';
 
 function UpsertTemplatePopup (props) {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const {upsertTemplate, setUpsertTemplate} = useContext(UpsertTemplateContext)
   const [modalState, setModalState] = useState({ visible: false, modalType: props.modalType })
   const _upsertTemplate = () => {

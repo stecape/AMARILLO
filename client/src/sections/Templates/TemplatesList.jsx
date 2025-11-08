@@ -4,6 +4,7 @@ import { Button } from "@react-md/button"
 import DeleteTemplatePopup from "./DeleteTemplatePopup"
 import UpsertTemplatePopup from "./UpsertTemplatePopup"
 import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
+import { getApiUrl } from '../../Helpers/config'
 import {
   Table,
   TableBody,
@@ -14,12 +15,12 @@ import {
 } from '@react-md/table'
 import axios from 'axios'
 import {ctxData} from "../../Helpers/CtxProvider"
-import { UpsertTemplateContext } from "./UpsertTemplate/UpsertTemplateContext";
+import { UpsertTemplateContext } from "./UpsertTemplate/UpsertTemplateContext"
 import tableStyles from '../../styles/Table.module.scss'
 
 function TemplatesList () {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const ctx = useContext(ctxData)
   const addMessage = useAddMessage()
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })

@@ -6,11 +6,12 @@ import { ctxData } from "../../../Helpers/CtxProvider"
 import axios from 'axios'
 import Bar from "../Bar/Bar"
 import SetPopup from "../SetPopup/SetPopup"
+import { getApiUrl } from "../../../Helpers/config"
 
 
 function Set(props) {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
 
   // Stato per gestire la visibilità del popup
   const [isDialogVisible, setDialogVisible] = useState(false)

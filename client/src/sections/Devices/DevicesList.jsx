@@ -3,6 +3,7 @@ import { Button } from "@react-md/button"
 import DeleteDevicePopup from "./DeleteDevicePopup"
 import UpsertDevicePopup from "./UpsertDevicePopup"
 import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
+import { getApiUrl } from '../../Helpers/config'
 import {
   Table,
   TableBody,
@@ -17,7 +18,7 @@ import tableStyles from '../../styles/Table.module.scss'
 
 function DevicesList () {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const ctx = useContext(ctxData)
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })
   const [modifyDevicePopup, setModifyDevicePopup] = useState({ visible: false, id: 0, name: '' })

@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { Button } from "@react-md/button"
+import { getApiUrl } from '../../Helpers/config'
 import {
   Table,
   TableBody,
@@ -15,7 +16,7 @@ import axios from "axios"
 
 function AlarmsList () {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const ctx = useContext(ctxData)
   // Recupero gli ID dei tipi e dei campi necessari
   let alarmTypeId = ctx.types.find(t => t.name==="Alarm")?.id || 0

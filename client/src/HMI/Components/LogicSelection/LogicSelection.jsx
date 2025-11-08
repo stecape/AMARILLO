@@ -5,11 +5,12 @@ import { Typography } from "@react-md/typography";
 import styles from "./LogicSelection.module.scss";
 import { ctxData } from "../../../Helpers/CtxProvider";
 import axios from 'axios';
+import { getApiUrl } from "../../../Helpers/config";
 
 
 function LogicSelection(props) {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const ctx = useContext(ctxData);
   let device = ctx.devices.filter(d => d.id === props.ctrl.device)[0].name;
   let commandId = props.ctrl.fields.Command;

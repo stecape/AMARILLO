@@ -16,6 +16,7 @@ import {
   Legend,
 } from "chart.js";
 import SetPopup from "../SetPopup/SetPopup";
+import { getApiUrl } from "../../../Helpers/config";
 
 ChartJS.register(
   CategoryScale,
@@ -28,7 +29,7 @@ ChartJS.register(
 );
 
 function Profile(props) {
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001";
+  const serverIp = getApiUrl();
 
   const [isDialogVisible, setDialogVisible] = useState(false)
   const [popupData, setPopupData] = useState({})

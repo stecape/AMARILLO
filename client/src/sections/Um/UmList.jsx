@@ -4,6 +4,7 @@ import { Button } from "@react-md/button"
 import DeleteUmPopup from "./DeleteUmPopup"
 import UpsertUmPopup from "./UpsertUmPopup"
 import { DeleteFontIcon, EditFontIcon, AddFontIcon } from "@react-md/material-icons"
+import { getApiUrl } from '../../Helpers/config'
 import {
   Table,
   TableBody,
@@ -18,7 +19,7 @@ import tableStyles from '../../styles/Table.module.scss'
 
 function UmList () {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   const ctx = useContext(ctxData)
   const addMessage = useAddMessage()
   const [deletePopup, setDeletePopup] = useState({ visible: false, id: 0, name: '' })

@@ -8,10 +8,11 @@ import Ramp from "./Blocks/Ramp";
 import axios from 'axios'
 import SetPopup from "../SetPopup/SetPopup";
 import styles from "./Pid.module.scss";
+import { getApiUrl } from "../../../Helpers/config";
 
 function Pid(props) {
   // Usa la variabile d'ambiente per configurare l'URL del server
-  const serverIp = process.env.REACT_APP_SERVER_IP || "http://localhost:3001"
+  const serverIp = getApiUrl()
   
   // Stato per gestire la visibilità del popup
   const [isDialogVisible, setDialogVisible] = useState(false)
