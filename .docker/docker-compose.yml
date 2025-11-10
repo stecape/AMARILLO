@@ -26,14 +26,26 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - C:\Proj\React\AMARILLO\.docker\nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/www/certbot
     depends_on:
       - frontend
       - backend
     networks:
       - appnet
 
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --quiet; done'"
+    networks:
+      - appnet
+      
   mosquitto:
     image: eclipse-mosquitto
     ports:
@@ -64,3 +76,6 @@ networks:
 volumes:
   postgres_data:
     driver: local
+  certbot-etc:
+  certbot-var:
+
